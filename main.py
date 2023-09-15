@@ -11,7 +11,7 @@ from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
-from utils.sample import mnist_iid, mnist_noniid, cifar_iid, cifar_noniid
+from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
 from utils.defense import fltrust, multi_krum, get_update, RLR, flame
 import torch
 from torchvision import datasets, transforms
@@ -99,9 +99,11 @@ if __name__ == '__main__':
             '../data/', train=False, download=True, transform=trans_mnist)
         # sample users
         if args.iid:
-            dict_users = np.load('./data/iid_fashion_mnist.npy', allow_pickle=True).item()
+            dict_users = fashion_mnist_iid(dataset_train, args.num_users)
+            #dict_users = np.load('./data/iid_fashion_mnist.npy', allow_pickle=True).item()
         else:
-            dict_users = np.load('./data/non_iid_fashion_mnist.npy', allow_pickle=True).item()
+            dict_users = fashion_mnist_noniid( dataset_train, args.num_users)
+            # dict_users = np.load('./data/non_iid_fashion_mnist.npy', allow_pickle=True).item()
     elif args.dataset == 'cifar':
         trans_cifar = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -110,9 +112,11 @@ if __name__ == '__main__':
         dataset_test = datasets.CIFAR10(
             '../data/cifar', train=False, download=True, transform=trans_cifar)
         if args.iid:
-            dict_users = np.load('./data/iid_cifar.npy', allow_pickle=True).item()
+            dict_users = cifar10_iid(dataset_train, args.num_users)
+            #dict_users = np.load('./data/iid_cifar.npy', allow_pickle=True).item()
         else:
-            dict_users = np.load('./data/non_iid_cifar.npy', allow_pickle=True).item()
+            dict_users = cifar10_noniid(dataset_train, args.num_users)
+            #dict_users = np.load('./data/non_iid_cifar.npy', allow_pickle=True).item()
     else:
         exit('Error: unrecognized dataset')
     img_size = dataset_train[0][0].shape
