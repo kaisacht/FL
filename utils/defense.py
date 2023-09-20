@@ -27,7 +27,7 @@ def fltrust(params, central_param, global_parameters, args):
     sum_parameters = None
     for local_parameters in params:
         local_parameters_v = parameters_dict_to_vector_flt(local_parameters)
-        # 计算cos相似度得分和向量长度裁剪值
+    
         client_cos = cos(central_param_v, local_parameters_v)
         client_cos = max(client_cos.item(), 0)
         client_clipped_value = central_norm/torch.norm(local_parameters_v)
@@ -36,7 +36,7 @@ def fltrust(params, central_param, global_parameters, args):
         if sum_parameters is None:
             sum_parameters = {}
             for key, var in local_parameters.items():
-                # 乘得分 再乘裁剪值
+            
                 sum_parameters[key] = client_cos * \
                     client_clipped_value * var.clone()
         else:
@@ -47,7 +47,7 @@ def fltrust(params, central_param, global_parameters, args):
         print(score_list)
         return global_parameters
     for var in global_parameters:
-        # 除以所以客户端的信任得分总和
+        
         temp = (sum_parameters[var] / FLTrustTotalScore)
         if global_parameters[var].type() != temp.type():
             temp = temp.type(global_parameters[var].type())
