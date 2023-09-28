@@ -1,0 +1,17 @@
+======================================
+    IID: 1
+    Dataset: mnist
+    Model: cnn_mnist
+    Model Init: None
+    Aggregation Function: avg
+    -----No Attack-----
+    Number of agents: 100
+    Fraction of agents each turn: 10(10.0%)
+    Local batch size: 50
+    Local epoch: 3
+    Client_LR: 0.01
+    Client_Momentum: 0.9
+    Global Rounds: 500
+======================================
+main_task_accuracy=[0, 86.08000183105469]
+backdoor_accuracy=[0, 0.09727626459143969]

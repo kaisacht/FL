@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import copy
 import time
-import hdbscan
+# import hdbscan
 from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
