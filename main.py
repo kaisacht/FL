@@ -26,7 +26,7 @@ import math
 matplotlib.use('Agg')
 
 
-def write_file(filename, accu_list, back_list, args, analyse = False):
+def write_file(filename, accu_list, back_list, loss_list, args, analyse = False):
     write_info_to_accfile(filename, args)
     f = open(filename, "a")
     f.write("main_task_accuracy=")
@@ -34,6 +34,10 @@ def write_file(filename, accu_list, back_list, args, analyse = False):
     f.write('\n')
     f.write("backdoor_accuracy=")
     f.write(str(back_list))
+    f.write('\n')
+    f.write("loss_list=")
+    f.write(str(loss_list))
+    
     if args.defence == "krum":
         krum_file = filename+"_krum_dis"
         torch.save(args.krum_distance,krum_file)
@@ -163,9 +167,9 @@ if __name__ == '__main__':
         
     val_acc_list, net_list = [0], []
     backdoor_acculist = [0]
-
-    args.attack_layers=[]
+    loss_list = []
     
+    args.attack_layers=[]
     if args.attack == "dba":
         args.dba_sign=0
     if args.defence == "krum":
@@ -255,11 +259,11 @@ if __name__ == '__main__':
             print("Main accuracy: {:.2f}".format(acc_test))
             print("Backdoor accuracy: {:.2f}".format(back_acc))
             val_acc_list.append(acc_test.item())
-
+            loss_list.append(loss_avg)
             backdoor_acculist.append(back_acc)
-            write_file(filename, val_acc_list, backdoor_acculist, args)
+            write_file(filename, val_acc_list, backdoor_acculist, loss_list, args)
     
-    best_acc, absr, bbsr = write_file(filename, val_acc_list, backdoor_acculist, args, True)
+    best_acc, absr, bbsr = write_file(filename, val_acc_list, backdoor_acculist, loss_list, args, True)
     
     # plot loss curve
     plt.figure()

@@ -19,5 +19,5 @@
     Client_LR: 0.01
     Client_Momentum: 0.9
     Global Rounds: 100
-    Noise in FLAME: 0.01
+    Noise in FLAME: 0.001
 ======================================
