@@ -306,10 +306,7 @@ def flame(local_model, update_params, global_model, args, epochs):
     num_clients = max(int(args.frac * args.num_users), 1)
     num_malicious_clients = int(args.malicious * num_clients)
     num_benign_clients = num_clients - num_malicious_clients
-    # print(cos_list.shape())
-    pca = KernelPCA(n_components=3)
-    cos_list_transformed = pca.fit_transform(cos_list)
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_list_transformed)
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_list)
     print("clusterer_labels:",clusterer.labels_)
     benign_client = []
     norm_list = np.array([])
@@ -353,6 +350,34 @@ def flame(local_model, update_params, global_model, args, epochs):
                 update_params[benign_client[i]][key] *= gama
     global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
     #add noise
+    for key, var in global_model.items():
+        if key.split('.')[-1] == 'num_batches_tracked':
+                    continue
+        temp = copy.deepcopy(var)
+        temp = temp.normal_(mean=0,std=args.noise*clip_value)
+        var += temp
+    return global_model
+
+def flame_no_cluster(local_model, update_params, global_model, args, epochs):
+    local_model_vector = []
+    for param in local_model:
+        local_model_vector.append(parameters_dict_to_vector_flt(param))
+    num_clients = max(int(args.frac * args.num_users), 1)
+    num_malicious_clients = int(args.malicious * num_clients)
+    num_benign_clients = num_clients - num_malicious_clients
+    benign_client = [i for i in range(num_clients)]
+    norm_list = np.array([])
+    for i in range(len(local_model_vector)):
+        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item()) 
+    clip_value = np.median(norm_list)
+    for i in range(len(benign_client)):
+        gama = clip_value/norm_list[i]
+        if gama < 1:
+            for key in update_params[benign_client[i]]:
+                if key.split('.')[-1] == 'num_batches_tracked':
+                    continue
+                update_params[benign_client[i]][key] *= gama
+    global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
     for key, var in global_model.items():
         if key.split('.')[-1] == 'num_batches_tracked':
                     continue

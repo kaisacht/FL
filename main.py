@@ -12,7 +12,7 @@ from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame
+from utils.defense import fltrust, multi_krum, get_update, RLR, flame, flame_no_cluster
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -241,6 +241,8 @@ if __name__ == '__main__':
             w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
             w_glob = flame(w_locals,w_updates,w_glob, args, args.epochs)
+        elif args.defence == 'flame_no':
+            w_glob = flame_no_cluster(w_locals,w_updates,w_glob, args, args.epochs)
         else:
             print("Wrong Defense Method")
             os._exit(0)
@@ -266,18 +268,16 @@ if __name__ == '__main__':
     best_acc, absr, bbsr = write_file(filename, val_acc_list, backdoor_acculist, loss_list, args, True)
     
     # plot loss curve
-    plt.figure()
-    plt.xlabel('communication')
-    plt.ylabel('accu_rate')
-    plt.plot(val_acc_list, label = 'main task(acc:'+str(best_acc)+'%)')
-    plt.plot(backdoor_acculist, label = 'backdoor task(BBSR:'+str(bbsr)+'%, ABSR:'+str(absr)+'%)')
-    plt.legend()
-    title = base_info
-    # plt.title(title, y=-0.3)
-    plt.title(title)
-    plt.savefig('./'+args.save +'/'+ title + '.pdf', format = 'pdf',bbox_inches='tight')
-    
-    
+    # plt.figure()
+    # plt.xlabel('communication')
+    # plt.ylabel('accu_rate')
+    # plt.plot(val_acc_list, label = 'main task(acc:'+str(best_acc)+'%)')
+    # plt.plot(backdoor_acculist, label = 'backdoor task(BBSR:'+str(bbsr)+'%, ABSR:'+str(absr)+'%)')
+    # plt.legend()
+    # title = base_info
+    # # plt.title(title, y=-0.3)
+    # plt.title(title)
+    # plt.savefig('./'+args.save +'/'+ title + '.pdf', format = 'pdf',bbox_inches='tight')
     # testing
     net_glob.eval()
     acc_train, loss_train = test_img(net_glob, dataset_train, args)
