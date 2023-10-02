@@ -1,7 +1,7 @@
 ======================================
     IID: 0
     Dataset: cifar
-    Model: mobilenet
+    Model: cnn_cifar
     Model Init: None
     Aggregation Function: flame
     Attack method: badnet
@@ -20,4 +20,9 @@
     Client_Momentum: 0.9
     Global Rounds: 150
     Noise in FLAME: 0.001
+proportion of malicious are selected:0.5666666666666667
+proportion of benign are selected:0.5904761904761905
 ======================================
+main_task_accuracy=[0, 10.0, 10.010000228881836, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+backdoor_accuracy=[0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+loss_list=[0.6748404643313981, 0.5344141370662326, 0.5987258850846522, 0.5116678589662412, 0.5202942280336036, 0.5128985111577263, 0.44179567817928417, 0.40492356820659053, 0.37914292480555467, 0.39813826532248764]

@@ -125,64 +125,6 @@ def fashion_mnist_iid(dataset, num_users):
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users
 
-
-# def cifar_noniid(dataset_label, num_clients, num_classes, q):
-#     """
-#     Sample I.I.D. client data from CIFAR10 dataset
-#     :param dataset:
-#     :param num_users:
-#     :return: dict of image index
-#     """
-#     proportion = non_iid_distribution_group(dataset_label, num_clients, num_classes, q)
-#     dict_users = non_iid_distribution_client(proportion, num_clients, num_classes)
-#     #  output clients' labels information
-#     # check_data_each_client(dataset_label, dict_users, num_clients, num_classes)
-#     return dict_users
-
-# def non_iid_distribution_group(dataset_label, num_clients, num_classes, q):
-#     dict_users, all_idxs = {}, [i for i in range(len(dataset_label))]
-#     for i in range(num_classes):
-#         dict_users[i] = set([])
-#     for k in range(num_classes):
-#         idx_k = np.where(dataset_label == k)[0]
-#         num_idx_k = len(idx_k)
-        
-#         selected_q_data = set(np.random.choice(idx_k, int(num_idx_k*q) , replace=False))
-#         dict_users[k] = dict_users[k]|selected_q_data
-#         idx_k = list(set(idx_k) - selected_q_data)
-#         all_idxs = list(set(all_idxs) - selected_q_data)
-#         for other_group in range(num_classes):
-#             if other_group == k:
-#                 continue
-#             selected_not_q_data = set(np.random.choice(idx_k, int(num_idx_k*(1-q)/(num_classes-1)) , replace=False))
-#             dict_users[other_group] = dict_users[other_group]|selected_not_q_data
-#             idx_k = list(set(idx_k) - selected_not_q_data)
-#             all_idxs = list(set(all_idxs) - selected_not_q_data)
-#     print(len(all_idxs),' samples are remained')
-#     print('random put those samples into groups')
-#     num_rem_each_group = len(all_idxs) // num_classes
-#     for i in range(num_classes):
-#         selected_rem_data = set(np.random.choice(all_idxs, num_rem_each_group, replace=False))
-#         dict_users[i] = dict_users[i]|selected_rem_data
-#         all_idxs = list(set(all_idxs) - selected_rem_data)
-#     print(len(all_idxs),' samples are remained after relocating')
-#     return dict_users
-
-
-# def non_iid_distribution_client(group_proportion, num_clients, num_classes):
-#     num_each_group = num_clients // num_classes
-#     num_data_each_client = len(group_proportion[0]) // num_each_group
-#     dict_users, all_idxs = {}, [i for i in range(num_data_each_client*num_clients)]
-#     for i in range(num_classes):
-#         group_data = list(group_proportion[i])
-#         for j in range(num_each_group):
-#             selected_data = set(np.random.choice(group_data, num_data_each_client, replace=False))
-#             dict_users[i*10+j] = selected_data
-#             group_data = list(set(group_data) - selected_data)
-#             all_idxs = list(set(all_idxs) - selected_data)
-#     print(len(all_idxs),' samples are remained')
-#     return dict_users
-
 def check_data_each_client(dataset_label, client_data_proportion, num_client, num_classes):
     for client in client_data_proportion.keys():
         client_data = dataset_label[list(client_data_proportion[client])]
