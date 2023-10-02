@@ -5,7 +5,7 @@
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
-from models.Net import CNN_MNIST
+from models.Net import CNN_MNIST ,CNN_CIFAR_RGB
 
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
@@ -122,15 +122,16 @@ if __name__ == '__main__':
     img_size = dataset_train[0][0].shape
 
     # build model
-    if args.model == "cnn_mnist" and args.dataset == "mnist":
+    if args.model == "cnn_mnist" or args.dataset == "mnist" or args.dataset == 'fashion_mnist':
         net_glob = CNN_MNIST().to(args.device)
-    
-    elif args.model == 'VGG' and args.dataset == 'cifar':
-        net_glob = vgg19_bn().to(args.device)
-    elif args.model == "resnet" and args.dataset == 'cifar':
-        net_glob = ResNet18().to(args.device)
-    elif args.model == "rlr_mnist" or args.model == "cnn":
-        net_glob = get_model('fmnist').to(args.device)
+    elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
+        net_glob = CNN_CIFAR_RGB().to(args.device)
+    # elif args.model == 'VGG' and args.dataset == 'cifar':
+    #     net_glob = vgg19_bn().to(args.device)
+    # elif args.model == "resnet" and args.dataset == 'cifar':
+    #     net_glob = ResNet18().to(args.device)
+    # elif args.model == "rlr_mnist" or args.model == "cnn":
+    #     net_glob = get_model('fmnist').to(args.device)
     else:
         exit('Error: unrecognized model')
     
@@ -235,7 +236,7 @@ if __name__ == '__main__':
             fltrust_norm = get_update(fltrust_norm, w_glob)
             w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
-            w_glob = flame(w_locals,w_updates,w_glob, args)
+            w_glob = flame(w_locals,w_updates,w_glob, args, args.epochs)
         else:
             print("Wrong Defense Method")
             os._exit(0)

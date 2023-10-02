@@ -3,11 +3,12 @@ import numpy as np
 import torch
 import copy
 import time
-# import hdbscan
+import hdbscan
 from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
 from sklearn.decomposition import KernelPCA
+from models.FedAvg import FedAvg
 def cos(a, b):
     # res = np.sum(a*b.T)/((np.sqrt(np.sum(a * a.T)) + 1e-9) * (np.sqrt(np.sum(b * b.T))) + 1e-
     res = (np.dot(a, b) + 1e-9) / (np.linalg.norm(a) + 1e-9) / \
@@ -27,7 +28,7 @@ def fltrust(params, central_param, global_parameters, args):
     sum_parameters = None
     for local_parameters in params:
         local_parameters_v = parameters_dict_to_vector_flt(local_parameters)
-    
+        # 计算cos相似度得分和向量长度裁剪值
         client_cos = cos(central_param_v, local_parameters_v)
         client_cos = max(client_cos.item(), 0)
         client_clipped_value = central_norm/torch.norm(local_parameters_v)
@@ -36,7 +37,7 @@ def fltrust(params, central_param, global_parameters, args):
         if sum_parameters is None:
             sum_parameters = {}
             for key, var in local_parameters.items():
-            
+                # 乘得分 再乘裁剪值
                 sum_parameters[key] = client_cos * \
                     client_clipped_value * var.clone()
         else:
@@ -47,7 +48,7 @@ def fltrust(params, central_param, global_parameters, args):
         print(score_list)
         return global_parameters
     for var in global_parameters:
-        
+        # 除以所以客户端的信任得分总和
         temp = (sum_parameters[var] / FLTrustTotalScore)
         if global_parameters[var].type() != temp.type():
             temp = temp.type(global_parameters[var].type())
@@ -305,7 +306,10 @@ def flame(local_model, update_params, global_model, args, epochs):
     num_clients = max(int(args.frac * args.num_users), 1)
     num_malicious_clients = int(args.malicious * num_clients)
     num_benign_clients = num_clients - num_malicious_clients
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_ij)
+    # print(cos_list.shape())
+    pca = KernelPCA(n_components=3)
+    cos_list_transformed = pca.fit_transform(cos_list)
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_list_transformed)
     print("clusterer_labels:",clusterer.labels_)
     benign_client = []
     norm_list = np.array([])
@@ -326,7 +330,8 @@ def flame(local_model, update_params, global_model, args, epochs):
                 benign_client.append(i)
     for i in range(len(local_model_vector)):
         # norm_list = np.append(norm_list,torch.norm(update_params_vector[i],p=2))  # consider BN
-        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  # no consider BN
+        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  
+
     for i in range(len(benign_client)):
         if benign_client[i] < num_malicious_clients:
             args.wrong_mal+=1
@@ -354,15 +359,4 @@ def flame(local_model, update_params, global_model, args, epochs):
         temp = copy.deepcopy(var)
         temp = temp.normal_(mean=0,std=args.noise*clip_value)
         var += temp
-    return global_model, proportion_of_malicious_are_selected, proportion_of_benign_are_selected
-
-def computr_gradient(global_model, single_local_model):
-    global_model - single_local_model
-
-def test_gradient(local_model, update_params, global_model, args, epochs):
-    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
-    cos_list=[]
-    local_model_vector = []
-    for param in local_model:
-        # local_model_vector.append(parameters_dict_to_vector_flt_cpu(param))
-        local_model_vector.append(parameters_dict_to_vector_flt(param))
+    return global_model

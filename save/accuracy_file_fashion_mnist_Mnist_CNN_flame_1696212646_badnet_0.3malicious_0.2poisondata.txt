@@ -20,4 +20,8 @@
     Client_Momentum: 0.9
     Global Rounds: 100
     Noise in FLAME: 0.01
+proportion of malicious are selected:0.5555555555555556
+proportion of benign are selected:0.5793650793650794
 ======================================
+main_task_accuracy=[0, 25.860000610351562, 21.06999969482422, 25.739999771118164, 33.38999938964844, 22.309999465942383, 28.389999389648438]
+backdoor_accuracy=[0, 100.0, 0.0, 59.9, 0.0, 0.0, 0.0]

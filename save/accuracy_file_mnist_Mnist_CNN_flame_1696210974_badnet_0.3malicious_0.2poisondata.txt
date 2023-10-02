@@ -1,6 +1,6 @@
 ======================================
     IID: 0
-    Dataset: fashion_mnist
+    Dataset: mnist
     Model: Mnist_CNN
     Model Init: None
     Aggregation Function: flame
@@ -20,4 +20,8 @@
     Client_Momentum: 0.9
     Global Rounds: 100
     Noise in FLAME: 0.01
+proportion of malicious are selected:0.7777777777777778
+proportion of benign are selected:0.42857142857142855
 ======================================
+main_task_accuracy=[0, 20.40999984741211]
+backdoor_accuracy=[0, 0.0]

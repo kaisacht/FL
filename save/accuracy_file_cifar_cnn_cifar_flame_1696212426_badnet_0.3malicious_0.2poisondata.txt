@@ -1,7 +1,7 @@
 ======================================
     IID: 0
-    Dataset: fashion_mnist
-    Model: Mnist_CNN
+    Dataset: cifar
+    Model: cnn_cifar
     Model Init: None
     Aggregation Function: flame
     Attack method: badnet
@@ -20,4 +20,8 @@
     Client_Momentum: 0.9
     Global Rounds: 100
     Noise in FLAME: 0.01
+proportion of malicious are selected:0.6666666666666666
+proportion of benign are selected:0.5238095238095238
 ======================================
+main_task_accuracy=[0, 10.699999809265137]
+backdoor_accuracy=[0, 0.1]
