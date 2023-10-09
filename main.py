@@ -5,12 +5,8 @@
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
-<<<<<<< HEAD
 from models.Net import CNN_MNIST, CNN_CIFAR_RGB
-=======
 from models.Net import CNN_MNIST ,CNN_CIFAR_RGB, RESNET_CIFAR, ResNet18, vgg11, MobileNetV2
->>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
-
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
@@ -132,7 +128,6 @@ if __name__ == '__main__':
     # build model
     if args.model == "cnn_mnist" or args.dataset == "mnist" or args.dataset == 'fashion_mnist':
         net_glob = CNN_MNIST().to(args.device)
-<<<<<<< HEAD
     elif args.model == "cnn_cifar" and args.dataset == "cifar10":
         net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'VGG' and args.dataset == 'cifar':
@@ -141,7 +136,6 @@ if __name__ == '__main__':
         net_glob = ResNet18().to(args.device)
     elif args.model == "rlr_mnist" or args.model == "cnn":
         net_glob = get_model('fmnist').to(args.device)
-=======
     elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
         net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'mobilenet' and args.dataset == 'cifar':
@@ -152,7 +146,6 @@ if __name__ == '__main__':
     #     net_glob = ResNet18().to(args.device)
     # elif args.model == "rlr_mnist" or args.model == "cnn":
     #     net_glob = get_model('fmnist').to(args.device)
->>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
     else:
         exit('Error: unrecognized model')
     
