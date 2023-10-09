@@ -57,6 +57,8 @@ class LocalMaliciousUpdate(object):
         self.trigger = args.trigger
         self.triggerX = args.triggerX
         self.triggerY = args.triggerY
+        self.wide = args.wide
+        self.long = args.long
         self.watermark = None
         self.apple = None
         self.dataset = args.dataset
@@ -83,7 +85,8 @@ class LocalMaliciousUpdate(object):
         
             if self.dataset == 'cifar':
                 pixel_max = 1
-            image[:,self.triggerY:self.triggerY+5,self.triggerX:self.triggerX+5] = pixel_max
+            #default wide = 3, long = 3.
+            image[:,self.triggerY:self.triggerY+ self.wide,self.triggerX:self.triggerX+ self.long] = pixel_max
         elif self.trigger == 'pattern':
             pixel_max = torch.max(image) if torch.max(image)>1 else 1
             image[:,self.triggerY+0,self.triggerX+0] = pixel_max

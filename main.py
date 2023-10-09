@@ -5,14 +5,18 @@
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
+<<<<<<< HEAD
 from models.Net import CNN_MNIST, CNN_CIFAR_RGB
+=======
+from models.Net import CNN_MNIST ,CNN_CIFAR_RGB, RESNET_CIFAR, ResNet18, vgg11, MobileNetV2
+>>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
 
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame
+from utils.defense import fltrust, multi_krum, get_update, RLR, flame, flame_no_cluster
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -26,7 +30,7 @@ import math
 matplotlib.use('Agg')
 
 
-def write_file(filename, accu_list, back_list, args, analyse = False):
+def write_file(filename, accu_list, back_list, loss_list, args, analyse = False):
     write_info_to_accfile(filename, args)
     f = open(filename, "a")
     f.write("main_task_accuracy=")
@@ -34,6 +38,10 @@ def write_file(filename, accu_list, back_list, args, analyse = False):
     f.write('\n')
     f.write("backdoor_accuracy=")
     f.write(str(back_list))
+    f.write('\n')
+    f.write("loss_list=")
+    f.write(str(loss_list))
+    
     if args.defence == "krum":
         krum_file = filename+"_krum_dis"
         torch.save(args.krum_distance,krum_file)
@@ -122,8 +130,9 @@ if __name__ == '__main__':
     img_size = dataset_train[0][0].shape
 
     # build model
-    if args.model == "cnn_mnist" and args.dataset == "mnist":
+    if args.model == "cnn_mnist" or args.dataset == "mnist" or args.dataset == 'fashion_mnist':
         net_glob = CNN_MNIST().to(args.device)
+<<<<<<< HEAD
     elif args.model == "cnn_cifar" and args.dataset == "cifar10":
         net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'VGG' and args.dataset == 'cifar':
@@ -132,6 +141,18 @@ if __name__ == '__main__':
         net_glob = ResNet18().to(args.device)
     elif args.model == "rlr_mnist" or args.model == "cnn":
         net_glob = get_model('fmnist').to(args.device)
+=======
+    elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
+        net_glob = CNN_CIFAR_RGB().to(args.device)
+    elif args.model == 'mobilenet' and args.dataset == 'cifar':
+        net_glob = MobileNetV2().to(args.device)
+    # elif args.model == 'VGG' and args.dataset == 'cifar':
+    #     net_glob = vgg19_bn().to(args.device)
+    # elif args.model == "resnet" and args.dataset == 'cifar':
+    #     net_glob = ResNet18().to(args.device)
+    # elif args.model == "rlr_mnist" or args.model == "cnn":
+    #     net_glob = get_model('fmnist').to(args.device)
+>>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
     else:
         exit('Error: unrecognized model')
     
@@ -163,9 +184,9 @@ if __name__ == '__main__':
         
     val_acc_list, net_list = [0], []
     backdoor_acculist = [0]
-
-    args.attack_layers=[]
+    loss_list = []
     
+    args.attack_layers=[]
     if args.attack == "dba":
         args.dba_sign=0
     if args.defence == "krum":
@@ -236,7 +257,9 @@ if __name__ == '__main__':
             fltrust_norm = get_update(fltrust_norm, w_glob)
             w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
-            w_glob = flame(w_locals,w_updates,w_glob, args)
+            w_glob = flame(w_locals,w_updates,w_glob, args, args.epochs)
+        elif args.defence == 'flame_no':
+            w_glob = flame_no_cluster(w_locals,w_updates,w_glob, args, args.epochs)
         else:
             print("Wrong Defense Method")
             os._exit(0)
@@ -255,25 +278,23 @@ if __name__ == '__main__':
             print("Main accuracy: {:.2f}".format(acc_test))
             print("Backdoor accuracy: {:.2f}".format(back_acc))
             val_acc_list.append(acc_test.item())
-
+            loss_list.append(loss_avg)
             backdoor_acculist.append(back_acc)
-            write_file(filename, val_acc_list, backdoor_acculist, args)
+            write_file(filename, val_acc_list, backdoor_acculist, loss_list, args)
     
-    best_acc, absr, bbsr = write_file(filename, val_acc_list, backdoor_acculist, args, True)
+    best_acc, absr, bbsr = write_file(filename, val_acc_list, backdoor_acculist, loss_list, args, True)
     
     # plot loss curve
-    plt.figure()
-    plt.xlabel('communication')
-    plt.ylabel('accu_rate')
-    plt.plot(val_acc_list, label = 'main task(acc:'+str(best_acc)+'%)')
-    plt.plot(backdoor_acculist, label = 'backdoor task(BBSR:'+str(bbsr)+'%, ABSR:'+str(absr)+'%)')
-    plt.legend()
-    title = base_info
-    # plt.title(title, y=-0.3)
-    plt.title(title)
-    plt.savefig('./'+args.save +'/'+ title + '.pdf', format = 'pdf',bbox_inches='tight')
-    
-    
+    # plt.figure()
+    # plt.xlabel('communication')
+    # plt.ylabel('accu_rate')
+    # plt.plot(val_acc_list, label = 'main task(acc:'+str(best_acc)+'%)')
+    # plt.plot(backdoor_acculist, label = 'backdoor task(BBSR:'+str(bbsr)+'%, ABSR:'+str(absr)+'%)')
+    # plt.legend()
+    # title = base_info
+    # # plt.title(title, y=-0.3)
+    # plt.title(title)
+    # plt.savefig('./'+args.save +'/'+ title + '.pdf', format = 'pdf',bbox_inches='tight')
     # testing
     net_glob.eval()
     acc_train, loss_train = test_img(net_glob, dataset_train, args)

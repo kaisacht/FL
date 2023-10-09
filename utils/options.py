@@ -48,7 +48,7 @@ def args_parser():
                         default='mnist', help="name of dataset")
     
     
-    parser.add_argument('--wide', type==int, default=3, help='wide attack image')
+    parser.add_argument('--wide', type=int, default=3, help='wide attack image')
     parser.add_argument('--long', type=int, default=3, help= "long attack image")
 
     parser.add_argument('--defence', type=str,
