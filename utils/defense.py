@@ -8,11 +8,8 @@ from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
 from sklearn.decomposition import KernelPCA
-<<<<<<< HEAD
 from sklearn.cluster import HDBSCAN
-=======
 from models.FedAvg import FedAvg
->>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
 def cos(a, b):
     # res = np.sum(a*b.T)/((np.sqrt(np.sum(a * a.T)) + 1e-9) * (np.sqrt(np.sum(b * b.T))) + 1e-
     res = (np.dot(a, b) + 1e-9) / (np.linalg.norm(a) + 1e-9) / \
@@ -310,11 +307,7 @@ def flame(local_model, update_params, global_model, args, epochs):
     num_clients = max(int(args.frac * args.num_users), 1)
     num_malicious_clients = int(args.malicious * num_clients)
     num_benign_clients = num_clients - num_malicious_clients
-<<<<<<< HEAD
-    clusterer = HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_ij)
-=======
     clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_list)
->>>>>>> 8a7bb3f1f56ffaefc0667f5799f48ac1970979eb
     print("clusterer_labels:",clusterer.labels_)
     benign_client = []
     norm_list = np.array([])
