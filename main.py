@@ -5,7 +5,7 @@
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
-from models.Net import CNN_MNIST
+from models.Net import CNN_MNIST, CNN_CIFAR_RGB
 
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
@@ -124,7 +124,8 @@ if __name__ == '__main__':
     # build model
     if args.model == "cnn_mnist" and args.dataset == "mnist":
         net_glob = CNN_MNIST().to(args.device)
-    
+    elif args.model == "cnn_cifar" and args.dataset == "cifar10":
+        net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'VGG' and args.dataset == 'cifar':
         net_glob = vgg19_bn().to(args.device)
     elif args.model == "resnet" and args.dataset == 'cifar':
