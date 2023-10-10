@@ -275,16 +275,10 @@ def vector_to_parameters_dict(vec: torch.Tensor, net_dict) -> None:
 def compute_robustLR(params, args):
     agent_updates_sign = [torch.sign(update) for update in params]  
     sm_of_signs = torch.abs(sum(agent_updates_sign))
-    # print(len(agent_updates_sign)) #10
-    # print(agent_updates_sign[0].shape) #torch.Size([1199882])
     sm_of_signs[sm_of_signs < args.robustLR_threshold] = -args.server_lr
     sm_of_signs[sm_of_signs >= args.robustLR_threshold] = args.server_lr 
     return sm_of_signs 
-    #return sm_of_signs.to(args.gpu)
    
-    
-
-
 def flame(local_model, update_params, global_model, args, epochs):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     cos_list=[]
