@@ -1,0 +1,1 @@
+python main.py --dataset mnist --iid 1 --defence RLR --frac 0.3 --malicious 0.3 --epochs 20
