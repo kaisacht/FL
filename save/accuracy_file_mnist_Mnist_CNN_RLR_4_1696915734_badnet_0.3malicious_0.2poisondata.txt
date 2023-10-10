@@ -21,3 +21,6 @@
     Global Rounds: 20
     RobustLR_threshold: 4
 ======================================
+main_task_accuracy=[0, 85.9800033569336]
+backdoor_accuracy=[0, 0.09727626459143969]
+loss_list=[1.5450800048256361]

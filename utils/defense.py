@@ -3,12 +3,12 @@ import numpy as np
 import torch
 import copy
 import time
-import hdbscan
+#import hdbscan
 from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
 from sklearn.decomposition import KernelPCA
-from sklearn.cluster import HDBSCAN
+#from sklearn.cluster import HDBSCAN
 from models.FedAvg import FedAvg
 def cos(a, b):
     # res = np.sum(a*b.T)/((np.sqrt(np.sum(a * a.T)) + 1e-9) * (np.sqrt(np.sum(b * b.T))) + 1e-
