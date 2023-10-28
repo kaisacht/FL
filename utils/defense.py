@@ -105,7 +105,7 @@ def multi_krum(gradients, n_attackers, args, multi_k=False):
     all_indices = np.arange(len(grads))
 
     while len(remaining_updates) > 2 * n_attackers + 2:
-        torch.cuda.empty_cache()
+        torch.cuda.empty_cache(),
         distances = []
         scores = None
         for update in remaining_updates:
@@ -204,8 +204,6 @@ def RLR(global_model, agent_updates_list, args):
     for i in agent_updates_list:
         grad_list.append(parameters_dict_to_vector_rlr(i))
     agent_updates_list = grad_list
-    
-
     aggregated_updates = 0
     for update in agent_updates_list:
         # print(update.shape)  # torch.Size([1199882])
@@ -368,6 +366,64 @@ def flame_no_cluster(local_model, update_params, global_model, args, epochs):
                     continue
                 update_params[benign_client[i]][key] *= gama
     global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
+    for key, var in global_model.items():
+        if key.split('.')[-1] == 'num_batches_tracked':
+                    continue
+        temp = copy.deepcopy(var)
+        temp = temp.normal_(mean=0,std=args.noise*clip_value)
+        var += temp
+    return global_model
+
+def our(local_model, update_params, global_model, args, epochs):
+    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
+    cos_list=[]
+    local_model_vector = []
+    for param in local_model:
+        # local_model_vector.append(parameters_dict_to_vector_flt_cpu(param))
+        local_model_vector.append(parameters_dict_to_vector_flt(param))
+    for i in range(len(local_model_vector)):
+        cos_i = 0
+        for j in range(len(local_model_vector)):
+            cos_ij = 1- cos(local_model_vector[i],local_model_vector[j])
+            # cos_i.append(round(cos_ij.item(),4))
+            cos_i += cos_ij
+        cos_list.append(cos_i)
+        
+    percent_to_take = 0.3
+    num_elements_to_take = int(len(cos_list) * percent_to_take)
+    sorted_indices = sorted(range(len(cos_list)), key=lambda i: cos_list[i])
+    indices_of_min_elements = sorted_indices[:num_elements_to_take]
+    num_clients = max(int(args.frac * args.num_users), 1)
+    num_malicious_clients = int(args.malicious * num_clients)
+    num_benign_clients = num_clients - num_malicious_clients
+
+    benign_client = indices_of_min_elements
+    norm_list = np.array([])
+    for i in range(len(local_model_vector)):
+        # norm_list = np.append(norm_list,torch.norm(update_params_vector[i],p=2))  # consider BN
+        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  
+
+    for i in range(len(benign_client)):
+        if benign_client[i] < num_malicious_clients:
+            args.wrong_mal+=1
+        else:
+            #  minus per benign in cluster
+            args.right_ben += 1
+    args.turn+=1
+    proportion_of_malicious_are_selected = args.wrong_mal/(num_malicious_clients*args.turn)
+    proportion_of_benign_are_selected = args.right_ben/(num_benign_clients*args.turn)
+    print('proportion of malicious are selected:',proportion_of_malicious_are_selected)
+    print('proportion of benign are selected:',proportion_of_benign_are_selected)
+    clip_value = np.median(norm_list)
+    for i in range(len(benign_client)):
+        gama = clip_value/norm_list[i]
+        if gama < 1:
+            for key in update_params[benign_client[i]]:
+                if key.split('.')[-1] == 'num_batches_tracked':
+                    continue
+                update_params[benign_client[i]][key] *= gama
+    global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
+
     for key, var in global_model.items():
         if key.split('.')[-1] == 'num_batches_tracked':
                     continue

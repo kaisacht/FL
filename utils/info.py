@@ -31,6 +31,8 @@ def information(args):
     info.append(f'    Model Init: {args.init}')
     info.append(f'    Aggregation Function: {args.defence}')
     if math.isclose(args.malicious, 0) == False:
+        info.append(f'    Long attack: {args.long}')
+        info.append(f'    Wide attack: {args.wide}')
         info.append(f'    Attack method: {args.attack}')
         # info.append(f'    Attack tau: {args.tau}')
         info.append(f'    Fraction of malicious agents: {args.malicious*100}%')
