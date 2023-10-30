@@ -1,0 +1,1 @@
+python3 main.py --dataset cifar --iid 1 --model resnet --defence our --frac 0.3 --malicious 0.15 --epochs 20 --long 3 --wide 3
