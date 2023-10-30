@@ -25,7 +25,6 @@ import time
 import math
 matplotlib.use('Agg')
 
-
 def write_file(filename, accu_list, back_list, loss_list, args, analyse = False):
     write_info_to_accfile(filename, args)
     f = open(filename, "a")
@@ -133,7 +132,7 @@ if __name__ == '__main__':
     elif args.model == 'VGG' and args.dataset == 'cifar':
         net_glob = vgg19_bn().to(args.device)
     elif args.model == "resnet" and args.dataset == 'cifar':
-        net_glob = ResNet18().to(args.device)
+        net_glob = RESNET_CIFAR().to(args.device)
     elif args.model == "rlr_mnist" or args.model == "cnn":
         net_glob = get_model('fmnist').to(args.device)
     elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
