@@ -191,30 +191,6 @@ def get_update(update, model):
 
 
 
-def RLR(global_model, agent_updates_list, args):
-    """
-    agent_updates_dict: dict['key']=one_dimension_update
-    agent_updates_list: list[0] = model.dict
-    global_model: net
-    """
-    # args.robustLR_threshold = 6
-    args.server_lr = 1
-
-    grad_list = []
-    for i in agent_updates_list:
-        grad_list.append(parameters_dict_to_vector_rlr(i))
-    agent_updates_list = grad_list
-    aggregated_updates = 0
-    for update in agent_updates_list:
-        # print(update.shape)  # torch.Size([1199882])
-        aggregated_updates += update
-    aggregated_updates /= len(agent_updates_list)
-    lr_vector = compute_robustLR(agent_updates_list, args)
-    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
-    new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
-    global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
-    # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
-    return global_w
 
 def parameters_dict_to_vector_rlr(net_dict) -> torch.Tensor:
     r"""Convert parameters to one vector
@@ -431,3 +407,59 @@ def our(local_model, update_params, global_model, args, epochs):
         temp = temp.normal_(mean=0,std=args.noise*clip_value)
         var += temp
     return global_model
+
+def mr_duc(global_model, agent_updates_list, args):
+    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
+    grad_list = []
+    for i in agent_updates_list:
+        grad_list.append(parameters_dict_to_vector_rlr(i))
+    agent_updates_list = grad_list
+    select_client = []
+    aggregated_updates = 0
+    sum_grad = sum(agent_updates_list)
+    cos_list = []
+    for i in range(len(grad_list)):
+        cos_i = cos(grad_list[i], sum_grad)
+        cos_list.append(cos_i)
+    threshold = 0.3
+    select_client = []
+    for i in range(len(cos_list)):
+        if cos_list[i] >= threshold:
+            select_client.append(grad_list[i])  
+    print(len(select_client)/ len(cos_list))
+    for update in select_client:
+        # print(update.shape)  # torch.Size([1199882])
+        aggregated_updates += update
+    aggregated_updates /= len(select_client)
+    
+    lr_vector = args.server_lr
+    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
+    new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
+    global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
+    # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
+    return global_w
+
+def RLR(global_model, agent_updates_list, args):
+    """
+    agent_updates_dict: dict['key']=one_dimension_update
+    agent_updates_list: list[0] = model.dict
+    global_model: net
+    """
+    # args.robustLR_threshold = 6
+    args.server_lr = 1
+
+    grad_list = []
+    for i in agent_updates_list:
+        grad_list.append(parameters_dict_to_vector_rlr(i))
+    agent_updates_list = grad_list
+    aggregated_updates = 0
+    for update in agent_updates_list:
+        # print(update.shape)  # torch.Size([1199882])
+        aggregated_updates += update
+    aggregated_updates /= len(agent_updates_list)
+    lr_vector = compute_robustLR(agent_updates_list, args)
+    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
+    new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
+    global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
+    # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
+    return global_w
