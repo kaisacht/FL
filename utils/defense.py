@@ -421,12 +421,13 @@ def mr_duc(global_model, agent_updates_list, args):
     for i in range(len(grad_list)):
         cos_i = cos(grad_list[i], sum_grad)
         cos_list.append(cos_i)
-    threshold = 0.3
+    threshold = 0.5
     select_client = []
     for i in range(len(cos_list)):
         if cos_list[i] >= threshold:
-            select_client.append(grad_list[i])  
-    print(len(select_client)/ len(cos_list))
+            select_client.append(grad_list[i]) 
+        if len(select_client) ==0 :
+            select_client.append(grad_list[0])
     for update in select_client:
         # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
@@ -458,6 +459,7 @@ def RLR(global_model, agent_updates_list, args):
         aggregated_updates += update
     aggregated_updates /= len(agent_updates_list)
     lr_vector = compute_robustLR(agent_updates_list, args)
+    print('lr', lr_vector)
     cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())

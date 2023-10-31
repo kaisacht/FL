@@ -6,7 +6,7 @@ from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
 from models.Net import CNN_MNIST, CNN_CIFAR_RGB
-from models.Net import CNN_MNIST ,CNN_CIFAR_RGB, ResNet18, vgg11, MobileNetV2, ResNet34
+from models.Net import CNN_MNIST ,CNN_CIFAR_RGB, RESNET_CIFAR, ResNet18, vgg11, MobileNetV2
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
@@ -24,6 +24,7 @@ import random
 import time
 import math
 matplotlib.use('Agg')
+
 
 def write_file(filename, accu_list, back_list, loss_list, args, analyse = False):
     write_info_to_accfile(filename, args)
@@ -131,8 +132,8 @@ if __name__ == '__main__':
         net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'VGG' and args.dataset == 'cifar':
         net_glob = vgg19_bn().to(args.device)
-    elif args.model == "resnet34" and args.dataset == 'cifar':
-        net_glob = ResNet34().to(args.device)
+    elif args.model == "resnet" and args.dataset == 'cifar':
+        net_glob = ResNet18().to(args.device)
     elif args.model == "rlr_mnist" or args.model == "cnn":
         net_glob = get_model('fmnist').to(args.device)
     elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
