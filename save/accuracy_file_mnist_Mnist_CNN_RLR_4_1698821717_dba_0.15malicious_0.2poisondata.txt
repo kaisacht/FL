@@ -1,9 +1,9 @@
 ======================================
-    IID: 1
-    Dataset: cifar
-    Model: resnet
+    IID: 0
+    Dataset: mnist
+    Model: Mnist_CNN
     Model Init: None
-    Aggregation Function: mr_duc
+    Aggregation Function: RLR
     Long attack: 5
     Wide attack: 5
     Attack method: dba
@@ -21,4 +21,8 @@
     Client_LR: 0.01
     Client_Momentum: 0.9
     Global Rounds: 100
+    RobustLR_threshold: 4
 ======================================
+main_task_accuracy=[0, 40.63999938964844, 39.529998779296875]
+backdoor_accuracy=[0, 0.0, 0.0]
+loss_list=[0.5175989143233198, 0.35585080869280156]
