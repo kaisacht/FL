@@ -434,8 +434,9 @@ def mr_duc(global_model, agent_updates_list, args):
                 select_client.append(i)
     else :
         number_select = len(cos_list)//2
-        sorted_indices = sorted(range(len(cos_list)), key=lambda i: cos_list[i])
-        select_client = sorted_indices[:number_select]
+        sorted_indices = sorted(range(len(cos_list)), key=lambda i: -cos_list[i])
+        indices_of_max_elements = sorted_indices[:number_select]
+        select_client = indices_of_max_elements
         print(select_client)
     for update in select_client:
         # print(update.shape)  # torch.Size([1199882])
