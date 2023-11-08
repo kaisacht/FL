@@ -425,10 +425,10 @@ def mr_duc(global_model, agent_updates_list, args):
     number_than_thershold = 0
     select_client = []
     number_select = 0
-    print(cos_list)
     for i in range(len(cos_list)):
         if cos_list[i] >= threshold:
-            number_than_thershold += 1 
+            number_than_thershold += 1
+            
     if number_than_thershold >= len(cos_list)//2:
         for i in range(len(cos_list)):
             if cos_list[i] >= threshold:
@@ -437,7 +437,6 @@ def mr_duc(global_model, agent_updates_list, args):
         number_select = len(cos_list)//2
         sorted_indices = sorted(range(len(cos_list)), key=lambda i: -cos_list[i])
         indices_of_max_elements = sorted_indices[:number_select]
-        select_client = indices_of_max_elements
         for i in indices_of_max_elements:
             select_client.append(grad_list[i])
         
