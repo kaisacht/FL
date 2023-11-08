@@ -422,12 +422,21 @@ def mr_duc(global_model, agent_updates_list, args):
         cos_i = cos(grad_list[i], sum_grad)
         cos_list.append(cos_i)
     threshold = 0.5
+    number_than_thershold = 0
     select_client = []
+    number_select = 0
     for i in range(len(cos_list)):
         if cos_list[i] >= threshold:
-            select_client.append(grad_list[i]) 
-        if len(select_client) ==0 :
-            select_client.append(grad_list[0])
+            number_than_thershold += 1 
+    if number_than_thershold >= len(cos_list)//2:
+        for i in range(len(cos_list)):
+            if cos_list[i] >= threshold:
+                select_client.append(i)
+    else :
+        number_select = len(cos_list)//2
+        sorted_indices = sorted(range(len(cos_list)), key=lambda i: cos_list[i])
+        select_client = sorted_indices[:number_select]
+        print(select_client)
     for update in select_client:
         # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
