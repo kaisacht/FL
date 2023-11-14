@@ -421,7 +421,7 @@ def mr_duc(global_model, agent_updates_list, args):
     for i in range(len(grad_list)):
         cos_i = cos(grad_list[i], sum_grad)
         cos_list.append(cos_i)
-    threshold = 0.5
+    threshold = args.threshold_reject
     number_than_thershold = 0
     select_client = []
     number_select = 0
