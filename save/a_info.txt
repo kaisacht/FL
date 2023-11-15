@@ -1,6 +1,6 @@
 ======================================
     IID: 0
-    Dataset: mnist
+    Dataset: fashion_mnist
     Model: Mnist_CNN
     Model Init: None
     Aggregation Function: mr_duc
