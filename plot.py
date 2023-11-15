@@ -28,32 +28,34 @@ for file in files:
                 threshold_reject = ''
                 defense =''
                 attack_method = ''
+                dataset = ''
                 lines = content.split("\n")
                 
                 for line in lines:
                     if line.startswith("    Aggregation Function:"):
                         defense = line.strip().split(": ")[1] +''
-                    elif line.startswith("    IID:"):
+                    if line.startswith("    IID:"):
                         iid = line.strip().split(": ")[1] +''
-                    elif line.startswith("    Threshold reject:"):
+                    if line.startswith("    Dataset:"):
+                        dataset = line.strip().split(": ")[1] + ''
+                    if line.startswith("    Threshold reject:"):
                         threshold_reject = line.strip().split(": ")[1]+''
-                    elif line.startswith("    Attack method:"):
+                    if line.startswith("    Attack method:"):
                         attack_method = line.strip().split(": ")[1] +''
-                    elif line.startswith("    Long attack:"):
+                    if line.startswith("    Long attack:"):
                         long_attack = line.strip().split(": ")[1] +''
-                    elif line.startswith("    Wide attack:"):
+                    if line.startswith("    Wide attack:"):
                         wide_attack = line.strip().split(": ")[1] +''
-                    elif line.startswith("main_task_accuracy="):
+                    if line.startswith("main_task_accuracy="):
                         main_task_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
-                    elif line.startswith('loss_list='):
+                    if line.startswith('loss_list='):
                         test_loss = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
-                    elif line.startswith("backdoor_accuracy="):
+                    if line.startswith("backdoor_accuracy="):
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
             size_line = 1.
-            if iid == '0':
-                if attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
+            if iid == '1':
+                if dataset == 'cifar' and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
                     if defense == 'mr_duc' and threshold_reject != '':
-                        print(threshold_reject)
                     # if defense == 'RLR' or defense == 'mr_duc':
                         plt.subplot(321)
                         plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject, linewidth = size_line)
@@ -65,29 +67,30 @@ for file in files:
                         plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                # elif attack_method == 'badnet' and long_attack == '5' and wide_attack == '5':
-                #     # if defense == 'RLR' or defense == 'mr_duc':
-                #     plt.subplot(323)
-                #     plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
-                #     plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
-                #     plt.ylabel('main accuracy')
-                #     plt.legend()
-                #     plt.subplot(324)
-                #     plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
-                #     plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
-                #     plt.ylabel('backdoor accuracy')
-                #     plt.legend()
-                # elif attack_method == 'dba' and long_attack == '5' and wide_attack == '5':
-                #     # if defense == 'RLR' or defense == 'mr_duc':
-                    
-                #     plt.subplot(325)
-                #     plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
-                #     plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
-                #     plt.ylabel('main accuracy')
-                #     plt.legend()
-                #     plt.subplot(326)
-                #     plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
-                #     plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
-                #     plt.ylabel('backdoor accuracy')
-                #     plt.legend()
-plt.savefig('../FL/save/threshold_reject.pdf', format = 'pdf',bbox_inches='tight')
+                elif  dataset == 'cifar' and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5':
+                    if defense == 'mr_duc' and threshold_reject !='':
+                    # if defense == 'RLR' or defense == 'mr_duc':
+                        plt.subplot(323)
+                        plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(324)
+                        plt.plot(backdoor_accuracy, label =  "threshold_reject = "+threshold_reject, linewidth = size_line)
+                        plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+                elif  dataset == 'cifar' and attack_method == 'dba' and long_attack == '5' and wide_attack == '5':
+                    # if defense == 'RLR' or defense == 'mr_duc':
+                    if defense == 'mr_duc' and threshold_reject !='':
+                        plt.subplot(325)
+                        plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(326)
+                        plt.plot(backdoor_accuracy, label =  "threshold_reject = "+threshold_reject, linewidth = size_line)
+                        plt.xlabel(attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+plt.savefig('../FL/save/threshold_reject_resnet.pdf', format = 'pdf',bbox_inches='tight')
