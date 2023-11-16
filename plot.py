@@ -11,6 +11,7 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,20))
 
+dataset_draw = 'mnist'
 
 for file in files:
     if os.path.isfile(os.path.join(path, file)):
@@ -54,8 +55,8 @@ for file in files:
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
             size_line = 1.
             if iid == '0':
-                if dataset == 'fashion_mnist' and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
-                    if defense == 'mr_duc' and threshold_reject != '':
+                if defense == 'mr_duc' and threshold_reject != '':
+                    if dataset == dataset_draw and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
                     # if defense == 'RLR' or defense == 'mr_duc':
                         plt.subplot(321)
                         plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject, linewidth = size_line)
@@ -67,8 +68,7 @@ for file in files:
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                elif  dataset == 'fashion_mnist' and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5':
-                    if defense == 'mr_duc' and threshold_reject !='':
+                    elif  dataset == dataset_draw and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5':
                     # if defense == 'RLR' or defense == 'mr_duc':
                         plt.subplot(323)
                         plt.plot(main_task_accuracy, label =  "threshold_reject = "+ threshold_reject, linewidth = size_line)
@@ -80,9 +80,7 @@ for file in files:
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                elif  dataset == 'fashion_mnist' and attack_method == 'dba' and long_attack == '5' and wide_attack == '5':
-                    # if defense == 'RLR' or defense == 'mr_duc':
-                    if defense == 'mr_duc' and threshold_reject !='':
+                    elif  dataset == dataset_draw and attack_method == 'dba' and long_attack == '5' and wide_attack == '5':
                         plt.subplot(325)
                         plt.plot(main_task_accuracy, label =  "threshold_reject = "+ threshold_reject, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
@@ -93,4 +91,4 @@ for file in files:
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-plt.savefig('../FL/save/threshold_reject_fmnist.pdf', format = 'pdf',bbox_inches='tight')
+plt.savefig('../FL/save/test_'+dataset_draw+'.pdf', format = 'pdf',bbox_inches='tight')
