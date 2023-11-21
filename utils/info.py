@@ -34,6 +34,7 @@ def information(args):
         info.append(f'    Long attack: {args.long}')
         info.append(f'    Wide attack: {args.wide}')
         info.append(f'    Threshold reject: {args.threshold_reject}')
+        info.append(f'    Threshold down: {args.threshold_down}')
         info.append(f'    Attack method: {args.attack}')
         # info.append(f'    Attack tau: {args.tau}')
         info.append(f'    Fraction of malicious agents: {args.malicious*100}%')
