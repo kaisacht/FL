@@ -11,7 +11,7 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,20))
 
-dataset_draw = 'mnist'
+dataset_draw = 'cifar'
 
 for file in files:
     if os.path.isfile(os.path.join(path, file)):
@@ -54,8 +54,9 @@ for file in files:
                     if line.startswith("backdoor_accuracy="):
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
             size_line = 1.
-            if iid == '0':
-                if defense == 'mr_duc' and threshold_reject != '':
+            if iid == '1':
+                if defense == 'mr_abs' and threshold_reject != '':
+                    print(1)
                     if dataset == dataset_draw and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
                     # if defense == 'RLR' or defense == 'mr_duc':
                         plt.subplot(321)
@@ -91,4 +92,4 @@ for file in files:
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-plt.savefig('../FL/save/test_'+dataset_draw+'.pdf', format = 'pdf',bbox_inches='tight')
+plt.savefig('../FL/save/test_'+'abs_cifar'+'.pdf', format = 'pdf',bbox_inches='tight')

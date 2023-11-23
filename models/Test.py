@@ -67,7 +67,7 @@ def test_or_not(args, label):
             return False
         
 def add_trigger(args, image):
-        if args.trigger == 'dba':
+        if args.trigger == 'dba': 
             pixel_max = 1
             image[:,args.triggerY+0:args.triggerY+2,args.triggerX+0:args.triggerX+2] = pixel_max
             image[:,args.triggerY+0:args.triggerY+2,args.triggerX+2:args.triggerX+5] = pixel_max
@@ -128,3 +128,4 @@ def save_img(image):
             pixel_max = np.max(img)
             img /= pixel_max
             io.imsave('./save/test_trigger.png', img_as_ubyte(img))
+            
