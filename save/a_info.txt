@@ -3,11 +3,11 @@
     Dataset: cifar
     Model: resnet
     Model Init: None
-    Aggregation Function: mr_abs
+    Aggregation Function: mr_duc
     Long attack: 5
     Wide attack: 5
-    Threshold reject: 0.8
-    Threshold down: 0.0
+    Threshold reject: 0.6
+    Threshold down: 0.3
     Attack method: dba
     Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
