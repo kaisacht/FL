@@ -4,10 +4,10 @@
     Model: resnet
     Model Init: None
     Aggregation Function: mr_duc
-    Long attack: 5
-    Wide attack: 5
+    Long attack: 4
+    Wide attack: 4
     Threshold reject: 0.6
-    Threshold down: 0.3
+    Threshold down: 0.2
     Attack method: dba
     Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
