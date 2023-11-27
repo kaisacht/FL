@@ -414,12 +414,13 @@ def mr_duc(global_model, agent_updates_list, args):
     for i in agent_updates_list:
         grad_list.append(parameters_dict_to_vector_rlr(i))
     agent_updates_list = grad_list
+    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     select_client = []
     aggregated_updates = 0
-    sum_grad = sum(agent_updates_list)
+    #sum_grad = sum(agent_updates_list)
     cos_list = []
     for i in range(len(grad_list)):
-        cos_i = cos(grad_list[i], sum_grad)
+        cos_i = cos(grad_list[i], cur_global_params)
         cos_list.append(cos_i)
     threshold = args.threshold_reject
     threshold_down = args.threshold_down
@@ -447,7 +448,7 @@ def mr_duc(global_model, agent_updates_list, args):
     aggregated_updates /= len(select_client)
     
     lr_vector = args.server_lr
-    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
+    # cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
     # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
