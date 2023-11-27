@@ -12,7 +12,7 @@ from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame, our, mr_duc, mrduc_abs
+from utils.defense import fltrust, multi_krum, get_update, RLR, flame, our, mr_duc
 import torch
 from torchvision import datasets, transforms
 import numpy as np
