@@ -417,10 +417,10 @@ def mr_duc(global_model, agent_updates_list, args):
     cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     select_client = []
     aggregated_updates = 0
-    #sum_grad = sum(agent_updates_list)
+    sum_grad = sum(agent_updates_list)
     cos_list = []
     for i in range(len(grad_list)):
-        cos_i = cos(grad_list[i], cur_global_params)
+        cos_i = cos(grad_list[i], sum_grad)
         cos_list.append(cos_i)
     threshold = args.threshold_reject
     threshold_down = args.threshold_down
@@ -436,7 +436,7 @@ def mr_duc(global_model, agent_updates_list, args):
             if cos_list[i] >= threshold:
                 select_client.append(grad_list[i])
     else :
-        number_select = len(cos_list)//2
+        number_select = len(cos_list)//4
         sorted_indices = sorted(range(len(cos_list)), key=lambda i: -cos_list[i])
         indices_of_max_elements = sorted_indices[:number_select]
         for i in indices_of_max_elements:
