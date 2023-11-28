@@ -255,8 +255,6 @@ if __name__ == '__main__':
             w_glob = our(w_locals,w_updates,w_glob, args, args.epochs)
         elif args.defence == 'mr_duc':
             w_glob = mr_duc(copy.deepcopy(net_glob), w_updates, args)
-        elif args.defence == 'mr_abs':
-            w_glob = mrduc_abs(copy.deepcopy(net_glob), w_updates, args)
         else:
             print("Wrong Defense Method")
             os._exit(0)
