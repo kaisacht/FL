@@ -103,11 +103,11 @@ if __name__ == '__main__':
             '../data/', train=False, download=True, transform=trans_mnist)
         # sample users
         if args.iid:
-            dict_users = fashion_mnist_iid(dataset_train, args.num_users)
-            #dict_users = np.load('./data/iid_fashion_mnist.npy', allow_pickle=True).item()
+            #dict_users = fashion_mnist_iid(dataset_train, args.num_users)
+            dict_users = np.load('./data/iid_fashion_mnist.npy', allow_pickle=True).item()
         else:
-            dict_users = fashion_mnist_noniid( dataset_train, args.num_users)
-            # dict_users = np.load('./data/non_iid_fashion_mnist.npy', allow_pickle=True).item()
+            #dict_users = fashion_mnist_noniid( dataset_train, args.num_users)
+            dict_users = np.load('./data/non_iid_fashion_mnist.npy', allow_pickle=True).item()
     elif args.dataset == 'cifar':
         trans_cifar = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -116,11 +116,11 @@ if __name__ == '__main__':
         dataset_test = datasets.CIFAR10(
             '../data/cifar', train=False, download=True, transform=trans_cifar)
         if args.iid:
-            dict_users = cifar10_iid(dataset_train, args.num_users)
-            #dict_users = np.load('./data/iid_cifar.npy', allow_pickle=True).item()
+            #dict_users = cifar10_iid(dataset_train, args.num_users)
+            dict_users = np.load('./data/iid_cifar.npy', allow_pickle=True).item()
         else:
-            dict_users = cifar10_noniid(dataset_train, args.num_users)
-            #dict_users = np.load('./data/non_iid_cifar.npy', allow_pickle=True).item()
+            #dict_users = cifar10_noniid(dataset_train, args.num_users)
+            dict_users = np.load('./data/non_iid_cifar.npy', allow_pickle=True).item()
     else:
         exit('Error: unrecognized dataset')
     img_size = dataset_train[0][0].shape
