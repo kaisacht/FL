@@ -11,7 +11,12 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,20))
 
-dataset_draw = 'cifar'
+dataset_draw = 'mnist'
+
+def check( parama):
+    if parama == '0.1' or parama == '0.2':
+        return True
+    return False
 
 for file in files:
     if os.path.isfile(os.path.join(path, file)):
@@ -57,52 +62,52 @@ for file in files:
                     if line.startswith("backdoor_accuracy="):
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
             size_line = 1.
-            if iid == '1':
-                if defense == 'mr_duc' and threshold_reject != '' and threshold_low != '':
-                    if dataset == dataset_draw and attack_method == 'badnet' and long_attack == '2' and wide_attack == '2':
+            if iid == '0':
+                if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low):
+                    if dataset == dataset_draw and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
                     # if defense == 'RLR' or defense == 'mr_duc':
-                        plt.subplot(421)
+                        plt.subplot(321)
                         plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
-                        plt.subplot(422)
+                        plt.subplot(322)
                         plt.plot(backdoor_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                    elif  dataset == dataset_draw and attack_method == 'badnet' and long_attack == '4' and wide_attack == '4':
+                    elif  dataset == dataset_draw and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5':
                     # if defense == 'RLR' or defense == 'mr_duc':
-                        plt.subplot(423)
+                        plt.subplot(323)
                         plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
-                        plt.subplot(424)
+                        plt.subplot(324)
                         plt.plot(backdoor_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                    elif  dataset == dataset_draw and attack_method == 'dba' and long_attack == '4' and wide_attack == '4':
-                        plt.subplot(425)
+                    elif  dataset == dataset_draw and attack_method == 'dba' and long_attack == '5' and wide_attack == '5':
+                        plt.subplot(325)
                         plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
-                        plt.subplot(426)
+                        plt.subplot(326)
                         plt.plot(backdoor_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
                         plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                    elif  dataset == dataset_draw and attack_method == 'dba' and long_attack == '2' and wide_attack == '2':
-                        plt.subplot(427)
-                        plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
-                        plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                        plt.ylabel('main accuracy')
-                        plt.legend()
-                        plt.subplot(428)
-                        plt.plot(backdoor_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
-                        plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                        plt.ylabel('backdoor accuracy')
-                        plt.legend()
-plt.savefig('../FL/save/test_'+'cifar0.2'+'.pdf', format = 'pdf',bbox_inches='tight')
+                    # elif  dataset == dataset_draw and attack_method == 'dba' and long_attack == '2' and wide_attack == '2':
+                    #     plt.subplot(327)
+                    #     plt.plot(main_task_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
+                    #     plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                    #     plt.ylabel('main accuracy')
+                    #     plt.legend()
+                    #     plt.subplot(328)
+                    #     plt.plot(backdoor_accuracy, label = "threshold_reject = " + threshold_reject+ 'threshold_low=' + threshold_low, linewidth = size_line)
+                    #     plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                    #     plt.ylabel('backdoor accuracy')
+                    #     plt.legend()
+plt.savefig('../FL/save/test_'+'mnist with n of 4'+'.pdf', format = 'pdf',bbox_inches='tight')
