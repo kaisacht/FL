@@ -11,7 +11,7 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,20))
 
-dataset_draw = 'mnist'
+dataset_draw = 'cifar'
 
 def check( parama):
     if parama == '0.1' or parama == '0.2':
@@ -36,6 +36,7 @@ for file in files:
                 defense =''
                 attack_method = ''
                 dataset = ''
+                Fraction_attack = ''
                 lines = content.split("\n")
                 
                 for line in lines:
@@ -51,6 +52,8 @@ for file in files:
                         threshold_low = line.strip().split(": ")[1]+''
                     if line.startswith("    Attack method:"):
                         attack_method = line.strip().split(": ")[1] +''
+                    if line.startswith("    Fraction of malicious agents:"):
+                        Fraction_attack = line.strip().split(": ")[1]+''
                     if line.startswith("    Long attack:"):
                         long_attack = line.strip().split(": ")[1] +''
                     if line.startswith("    Wide attack:"):
@@ -62,8 +65,8 @@ for file in files:
                     if line.startswith("backdoor_accuracy="):
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
             size_line = 1.
-            if iid == '0':
-                if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low):
+            if iid == '1':
+                if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low) and Fraction_attack =='16.0%':
                     if dataset == dataset_draw and attack_method == 'badnet' and long_attack == '3' and wide_attack == '3':
                     # if defense == 'RLR' or defense == 'mr_duc':
                         plt.subplot(321)
@@ -110,4 +113,4 @@ for file in files:
                     #     plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
                     #     plt.ylabel('backdoor accuracy')
                     #     plt.legend()
-plt.savefig('../FL/save/test_'+'mnist with n of 4'+'.pdf', format = 'pdf',bbox_inches='tight')
+plt.savefig('../FL/save/test_'+'cifar with n of 3'+'.pdf', format = 'pdf',bbox_inches='tight')
