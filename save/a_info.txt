@@ -1,5 +1,5 @@
 ======================================
-    IID: 1
+    IID: 0
     Dataset: cifar
     Model: resnet
     Model Init: None
@@ -9,7 +9,7 @@
     Threshold reject: 0.6
     Threshold down: 0.2
     Attack method: dba
-    Fraction of malicious agents: 16.0%
+    Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
     Backdoor From 7 to 5
     Attack Begin: 0
