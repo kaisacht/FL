@@ -22,5 +22,5 @@
     Local epoch: 3
     Client_LR: 0.01
     Client_Momentum: 0.9
-    Global Rounds: 100
+    Global Rounds: 80
 ======================================
