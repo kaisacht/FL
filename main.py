@@ -94,7 +94,7 @@ if __name__ == '__main__':
         if args.iid:
             dict_users = mnist_iid(dataset_train, args.num_users)
         else:
-            dict_users = mnist_noniid(dataset_train, args.num_users, 10, 20)
+            dict_users = mnist_noniid(dataset_train, args.num_users)
     elif args.dataset == 'fashion_mnist':
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=[0.2860], std=[0.3530])])
         dataset_train = datasets.FashionMNIST(

@@ -6,9 +6,9 @@
     Aggregation Function: mr_duc
     Long attack: 5
     Wide attack: 5
-    Threshold reject: 0.6
-    Threshold down: 0.2
-    Attack method: dba
+    Threshold reject: -0.2
+    Threshold down: -0.5
+    Attack method: badnet
     Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
     Backdoor From 7 to 5

@@ -7,7 +7,7 @@ import hdbscan
 from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
-from sklearn.decomposition import KernelPCA
+from sklearn.decomposition import PCA
 #from sklearn.cluster import HDBSCAN
 from models.FedAvg import FedAvg
 def cos(a, b):
@@ -411,15 +411,28 @@ def our(local_model, update_params, global_model, args, epochs):
 def mr_duc(global_model, agent_updates_list, args):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     grad_list = []
+    pca_list = []
     for i in agent_updates_list:
         grad_list.append(parameters_dict_to_vector_rlr(i))
     agent_updates_list = grad_list
     select_client = []
     aggregated_updates = 0
     sum_grad = sum(agent_updates_list)
+    
+    grad_list.append(sum_grad)
+    list_of_tensors = grad_list
+    big_tensor = torch.stack(list_of_tensors, dim=0)
+    big_tensor_cpu_numpy = big_tensor.cpu().numpy()
+
+    pca = PCA(n_components=5)  # Choose the number of components
+    transformed_data = pca.fit_transform(big_tensor_cpu_numpy)
+
+    sum_grad = torch.from_numpy(transformed_data[-1]).cuda()
+    for i in range(len(grad_list)-1):
+        pca_list.append(torch.from_numpy(transformed_data[i]).cuda())
     cos_list = []
-    for i in range(len(grad_list)):
-        cos_i = cos(grad_list[i], sum_grad)
+    for i in range(len(pca_list)-1):
+        cos_i = cos(pca_list[i], sum_grad)
         cos_list.append(cos_i)
     threshold = args.threshold_reject
     threshold_down = args.threshold_down
@@ -429,7 +442,6 @@ def mr_duc(global_model, agent_updates_list, args):
     for i in range(len(cos_list)):
         if cos_list[i] >= threshold:
             number_than_thershold += 1
-            
     if number_than_thershold >= len(cos_list)//2:
         for i in range(len(cos_list)):
             if cos_list[i] >= threshold:
