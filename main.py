@@ -12,7 +12,7 @@ from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame, our, mr_duc
+from utils.defense import fltrust, multi_krum, get_update, RLR, flame, our, mr_duc, zkp
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -73,6 +73,14 @@ def test_mkdir(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
+def caculatorLabel( dataset, dict_user):
+    client  = [0,0,0,0,0,0,0,0,0,0]
+    for j in range(len(dict_user)):
+        my_list = list(dict_user)
+        idx = my_list[j]
+        label = dataset[idx][1]
+        client[label] += 1
+    return client
 
 if __name__ == '__main__':
     # parse args
@@ -195,6 +203,10 @@ if __name__ == '__main__':
             w_updates = []
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+        list_label = []
+        for i in range(len(idxs_users)):
+            label_i = caculatorLabel(dataset_train, dict_users[idxs_users[i]])
+            list_label.append(label_i)        
         if val_acc_list[-1] > backdoor_begin_acc:
             attack_number = int(args.malicious * m)
         else:
@@ -226,6 +238,7 @@ if __name__ == '__main__':
                     args=args, dataset=dataset_train, idxs=dict_users[idx])
                 w, loss = local.train(
                     net=copy.deepcopy(net_glob).to(args.device))
+                
             w_updates.append(get_update(w, w_glob))
             if args.all_clients:
                 w_locals[idx] = copy.deepcopy(w)
@@ -255,6 +268,9 @@ if __name__ == '__main__':
             w_glob = our(w_locals,w_updates,w_glob, args, args.epochs)
         elif args.defence == 'mr_duc':
             w_glob = mr_duc(copy.deepcopy(net_glob), w_updates, args)
+        elif args.defence == 'zkp':
+            
+            w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label)
         else:
             print("Wrong Defense Method")
             os._exit(0)

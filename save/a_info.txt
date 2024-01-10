@@ -3,11 +3,11 @@
     Dataset: mnist
     Model: Mnist_CNN
     Model Init: None
-    Aggregation Function: mr_duc
-    Long attack: 5
-    Wide attack: 5
-    Threshold reject: -0.2
-    Threshold down: -0.5
+    Aggregation Function: zkp
+    Long attack: 4
+    Wide attack: 4
+    Threshold reject: 0.5
+    Threshold down: 0.0
     Attack method: badnet
     Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
@@ -22,5 +22,5 @@
     Local epoch: 3
     Client_LR: 0.01
     Client_Momentum: 0.9
-    Global Rounds: 80
+    Global Rounds: 100
 ======================================

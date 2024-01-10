@@ -32,7 +32,6 @@ class DatasetSplit(Dataset):
         image, label = self.dataset[self.idxs[item]]
         return image, label
 
-
 class LocalMaliciousUpdate(object):
     def __init__(self, args, dataset=None, idxs=None, attack=None, order=None):
         self.args = args

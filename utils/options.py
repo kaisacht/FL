@@ -110,6 +110,5 @@ def args_parser():
     parser.add_argument('--all_clients', action='store_true',
                         help='aggregation over all clients') 
 
-
     args = parser.parse_args()
     return args

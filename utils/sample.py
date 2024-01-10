@@ -30,12 +30,6 @@ def group(datasets):
     return dict_class
 
 def mnist_noniid(dataset, num_users):
-    """
-    Sample non-I.I.D client data from MNIST dataset
-    :param dataset:
-    :param num_users:
-    :return:
-    """
     num_shards, num_imgs = 200, 300
     idx_shard = [i for i in range(num_shards)]
     dict_users = {i: np.array([], dtype='int64') for i in range(num_users)}

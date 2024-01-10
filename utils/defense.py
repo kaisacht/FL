@@ -10,6 +10,7 @@ import os
 from sklearn.decomposition import PCA
 #from sklearn.cluster import HDBSCAN
 from models.FedAvg import FedAvg
+
 def cos(a, b):
     # res = np.sum(a*b.T)/((np.sqrt(np.sum(a * a.T)) + 1e-9) * (np.sqrt(np.sum(b * b.T))) + 1e-
     res = (np.dot(a, b) + 1e-9) / (np.linalg.norm(a) + 1e-9) / \
@@ -490,3 +491,63 @@ def RLR(global_model, agent_updates_list, args):
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
     # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
     return global_w
+
+def classify(list_agent, threshold):
+    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
+    gradient_list = []
+    list_select = []
+    for  i in list_agent:
+        gradient_list.append(parameters_dict_to_vector_rlr(i))
+    sum_gradient = sum(gradient_list)
+    
+    for i in range(len(gradient_list)):
+        cos_i = cos(gradient_list[i], sum_gradient)
+        if cos_i >= threshold:
+            list_select.append(gradient_list[i])
+    return list_select
+    
+    
+    
+def zkp(global_model, agent_updates_list, args, listLabel):
+    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
+    group_1 = []
+    group_2 = []
+    group_3 = []
+    list_classify = []
+    
+    for i in range(len(listLabel)):
+        index_max = get_max_index(listLabel[i])
+        if index_max == 0 or index_max == 1 or index_max == 2 :
+            group_1.append(agent_updates_list[i])
+        elif index_max == 3 or index_max == 4 or index_max == 5:
+            group_2.append(agent_updates_list[i])
+        #6,7,8,9
+        else:
+            group_3.append(agent_updates_list[i])
+            
+    list_classify += classify(group_1, args.threshold_reject)
+    list_classify += classify(group_2, args.threshold_reject)
+    list_classify += classify(group_3, args.threshold_reject)
+
+    aggregated_updates = 0
+    for update in list_classify:
+        # print(update.shape)  # torch.Size([1199882])
+        aggregated_updates += update
+    aggregated_updates /= len(list_classify)
+    
+    lr_vector = args.server_lr
+    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
+    new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
+    global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
+    return global_w
+
+#witen a fuction return the index in list has the max value
+def get_max_index(list):
+    max = 0
+    index = 0
+    for i in range(len(list)):
+        if list[i] > max:
+            max = list[i]
+            index = i
+    return index
+
