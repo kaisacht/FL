@@ -517,9 +517,9 @@ def zkp(global_model, agent_updates_list, args, listLabel):
     
     for i in range(len(listLabel)):
         index_max = get_max_index(listLabel[i])
-        if index_max == 0 or index_max == 1 or index_max == 2 :
+        if index_max == 0 or index_max == 1 or index_max == 2 and len(group_1) < args.num_users//3:
             group_1.append(agent_updates_list[i])
-        elif index_max == 3 or index_max == 4 or index_max == 5:
+        elif index_max == 3 or index_max == 4 or index_max == 5 < args.num_users//3:
             group_2.append(agent_updates_list[i])
         #6,7,8,9
         else:
@@ -528,13 +528,13 @@ def zkp(global_model, agent_updates_list, args, listLabel):
     list_classify += classify(group_1, args.threshold_reject)
     list_classify += classify(group_2, args.threshold_reject)
     list_classify += classify(group_3, args.threshold_reject)
-
+    
     aggregated_updates = 0
     for update in list_classify:
         # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
-    aggregated_updates /= len(list_classify)
-    
+    if len(list_classify) != 0:
+        aggregated_updates /= len(list_classify)
     lr_vector = args.server_lr
     cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
