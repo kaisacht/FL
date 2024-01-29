@@ -5,6 +5,8 @@ import argparse
 def args_parser():
     parser = argparse.ArgumentParser()
     # save file 
+    parser.add_argument('--q_noniid', type= int, default=0,
+                        help="whether to use noniid")
     parser.add_argument('--save', type=str, default='save',
                         help="dic to save results (ending without /)")
     parser.add_argument('--init', type=str, default='None',

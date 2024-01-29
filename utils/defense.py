@@ -254,7 +254,8 @@ def compute_robustLR(params, args):
     sm_of_signs[sm_of_signs >= args.robustLR_threshold] = args.server_lr 
     return sm_of_signs 
    
-def flame(local_model, update_params, global_model, args, epochs):
+
+def flame(local_model, update_params, global_model, args):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     cos_list=[]
     local_model_vector = []
@@ -271,8 +272,7 @@ def flame(local_model, update_params, global_model, args, epochs):
     num_clients = max(int(args.frac * args.num_users), 1)
     num_malicious_clients = int(args.malicious * num_clients)
     num_benign_clients = num_clients - num_malicious_clients
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 +1,min_samples=1,allow_single_cluster=True).fit(cos_list)
-    print("clusterer_labels:",clusterer.labels_)
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=num_clients//2 + 1,min_samples=1,allow_single_cluster=True).fit(cos_list)
     benign_client = []
     norm_list = np.array([])
 
@@ -292,8 +292,8 @@ def flame(local_model, update_params, global_model, args, epochs):
                 benign_client.append(i)
     for i in range(len(local_model_vector)):
         # norm_list = np.append(norm_list,torch.norm(update_params_vector[i],p=2))  # consider BN
-        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  
-
+        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  # no consider BN
+   
     for i in range(len(benign_client)):
         if benign_client[i] < num_malicious_clients:
             args.wrong_mal+=1
@@ -301,10 +301,8 @@ def flame(local_model, update_params, global_model, args, epochs):
             #  minus per benign in cluster
             args.right_ben += 1
     args.turn+=1
-    proportion_of_malicious_are_selected = args.wrong_mal/(num_malicious_clients*args.turn)
-    proportion_of_benign_are_selected = args.right_ben/(num_benign_clients*args.turn)
-    print('proportion of malicious are selected:',proportion_of_malicious_are_selected)
-    print('proportion of benign are selected:',proportion_of_benign_are_selected)
+    # print('proportion of malicious are selected:',args.wrong_mal/(num_malicious_clients*args.turn))
+    # print('proportion of benign are selected:',args.right_ben/(num_benign_clients*args.turn))
     clip_value = np.median(norm_list)
     for i in range(len(benign_client)):
         gama = clip_value/norm_list[i]
@@ -322,149 +320,6 @@ def flame(local_model, update_params, global_model, args, epochs):
         temp = temp.normal_(mean=0,std=args.noise*clip_value)
         var += temp
     return global_model
-
-def flame_no_cluster(local_model, update_params, global_model, args, epochs):
-    local_model_vector = []
-    for param in local_model:
-        local_model_vector.append(parameters_dict_to_vector_flt(param))
-    num_clients = max(int(args.frac * args.num_users), 1)
-    num_malicious_clients = int(args.malicious * num_clients)
-    num_benign_clients = num_clients - num_malicious_clients
-    benign_client = [i for i in range(num_clients)]
-    norm_list = np.array([])
-    for i in range(len(local_model_vector)):
-        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item()) 
-    clip_value = np.median(norm_list)
-    for i in range(len(benign_client)):
-        gama = clip_value/norm_list[i]
-        if gama < 1:
-            for key in update_params[benign_client[i]]:
-                if key.split('.')[-1] == 'num_batches_tracked':
-                    continue
-                update_params[benign_client[i]][key] *= gama
-    global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
-    for key, var in global_model.items():
-        if key.split('.')[-1] == 'num_batches_tracked':
-                    continue
-        temp = copy.deepcopy(var)
-        temp = temp.normal_(mean=0,std=args.noise*clip_value)
-        var += temp
-    return global_model
-
-def our(local_model, update_params, global_model, args, epochs):
-    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
-    cos_list=[]
-    local_model_vector = []
-    for param in local_model:
-        # local_model_vector.append(parameters_dict_to_vector_flt_cpu(param))
-        local_model_vector.append(parameters_dict_to_vector_flt(param))
-    for i in range(len(local_model_vector)):
-        cos_i = 0
-        for j in range(len(local_model_vector)):
-            cos_ij = 1- cos(local_model_vector[i],local_model_vector[j])
-            # cos_i.append(round(cos_ij.item(),4))
-            cos_i += cos_ij
-        cos_list.append(cos_i)
-        
-    percent_to_take = 0.3
-    num_elements_to_take = int(len(cos_list) * percent_to_take)
-    sorted_indices = sorted(range(len(cos_list)), key=lambda i: cos_list[i])
-    indices_of_min_elements = sorted_indices[:num_elements_to_take]
-    num_clients = max(int(args.frac * args.num_users), 1)
-    num_malicious_clients = int(args.malicious * num_clients)
-    num_benign_clients = num_clients - num_malicious_clients
-
-    benign_client = indices_of_min_elements
-    norm_list = np.array([])
-    for i in range(len(local_model_vector)):
-        # norm_list = np.append(norm_list,torch.norm(update_params_vector[i],p=2))  # consider BN
-        norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  
-
-    for i in range(len(benign_client)):
-        if benign_client[i] < num_malicious_clients:
-            args.wrong_mal+=1
-        else:
-            #  minus per benign in cluster
-            args.right_ben += 1
-    args.turn+=1
-    proportion_of_malicious_are_selected = args.wrong_mal/(num_malicious_clients*args.turn)
-    proportion_of_benign_are_selected = args.right_ben/(num_benign_clients*args.turn)
-    print('proportion of malicious are selected:',proportion_of_malicious_are_selected)
-    print('proportion of benign are selected:',proportion_of_benign_are_selected)
-    clip_value = np.median(norm_list)
-    for i in range(len(benign_client)):
-        gama = clip_value/norm_list[i]
-        if gama < 1:
-            for key in update_params[benign_client[i]]:
-                if key.split('.')[-1] == 'num_batches_tracked':
-                    continue
-                update_params[benign_client[i]][key] *= gama
-    global_model = no_defence_balance([update_params[i] for i in benign_client], global_model)
-
-    for key, var in global_model.items():
-        if key.split('.')[-1] == 'num_batches_tracked':
-                    continue
-        temp = copy.deepcopy(var)
-        temp = temp.normal_(mean=0,std=args.noise*clip_value)
-        var += temp
-    return global_model
-
-def mr_duc(global_model, agent_updates_list, args):
-    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
-    grad_list = []
-    pca_list = []
-    for i in agent_updates_list:
-        grad_list.append(parameters_dict_to_vector_rlr(i))
-    agent_updates_list = grad_list
-    select_client = []
-    aggregated_updates = 0
-    sum_grad = sum(agent_updates_list)
-    
-    grad_list.append(sum_grad)
-    list_of_tensors = grad_list
-    big_tensor = torch.stack(list_of_tensors, dim=0)
-    big_tensor_cpu_numpy = big_tensor.cpu().numpy()
-
-    pca = PCA(n_components=5)  # Choose the number of components
-    transformed_data = pca.fit_transform(big_tensor_cpu_numpy)
-
-    sum_grad = torch.from_numpy(transformed_data[-1]).cuda()
-    for i in range(len(grad_list)-1):
-        pca_list.append(torch.from_numpy(transformed_data[i]).cuda())
-    cos_list = []
-    for i in range(len(pca_list)-1):
-        cos_i = cos(pca_list[i], sum_grad)
-        cos_list.append(cos_i)
-    threshold = args.threshold_reject
-    threshold_down = args.threshold_down
-    number_than_thershold = 0
-    select_client = []
-    number_select = 0
-    for i in range(len(cos_list)):
-        if cos_list[i] >= threshold:
-            number_than_thershold += 1
-    if number_than_thershold >= len(cos_list)//2:
-        for i in range(len(cos_list)):
-            if cos_list[i] >= threshold:
-                select_client.append(grad_list[i])
-    else :
-        number_select = len(cos_list)//2
-        sorted_indices = sorted(range(len(cos_list)), key=lambda i: -cos_list[i])
-        indices_of_max_elements = sorted_indices[:number_select]
-        for i in indices_of_max_elements:
-            if(cos_list[i] >= threshold_down):
-                select_client.append(grad_list[i])
-    for update in select_client:
-        # print(update.shape)  # torch.Size([1199882])
-        aggregated_updates += update
-    aggregated_updates /= len(select_client)
-    
-    lr_vector = args.server_lr
-    cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
-    new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
-    global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
-    # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
-    return global_w
 
 def RLR(global_model, agent_updates_list, args):
     """
@@ -517,17 +372,17 @@ def zkp(global_model, agent_updates_list, args, listLabel):
     
     for i in range(len(listLabel)):
         index_max = get_max_index(listLabel[i])
-        if index_max == 0 or index_max == 1 or index_max == 2 and len(group_1) < args.num_users//3:
+        if index_max == 0 or index_max == 1 or index_max == 2:
             group_1.append(agent_updates_list[i])
-        elif index_max == 3 or index_max == 4 or index_max == 5 < args.num_users//3:
+        elif index_max == 3 or index_max == 4 or index_max == 5:
             group_2.append(agent_updates_list[i])
         #6,7,8,9
         else:
             group_3.append(agent_updates_list[i])
-            
-    list_classify += classify(group_1, args.threshold_reject)
-    list_classify += classify(group_2, args.threshold_reject)
-    list_classify += classify(group_3, args.threshold_reject)
+    threshold = 0.5 
+    list_classify += classify(group_1, threshold)
+    list_classify += classify(group_2, threshold)
+    list_classify += classify(group_3, threshold)
     
     aggregated_updates = 0
     for update in list_classify:
@@ -540,6 +395,8 @@ def zkp(global_model, agent_updates_list, args, listLabel):
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
     return global_w
+
+
 
 #witen a fuction return the index in list has the max value
 def get_max_index(list):

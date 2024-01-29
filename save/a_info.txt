@@ -3,12 +3,13 @@
     Dataset: mnist
     Model: Mnist_CNN
     Model Init: None
-    Aggregation Function: zkp
-    Long attack: 3
-    Wide attack: 3
+    Aggregation Function: flame
+    Fraction NonIID: 15
+    Long attack: 5
+    Wide attack: 5
     Threshold reject: 0.5
     Threshold down: 0.0
-    Attack method: badnet
+    Attack method: dba
     Fraction of malicious agents: 15.0%
     Poison Frac: 0.2
     Backdoor From 7 to 5
@@ -23,4 +24,5 @@
     Client_LR: 0.01
     Client_Momentum: 0.9
     Global Rounds: 100
+    Noise in FLAME: 0.001
 ======================================

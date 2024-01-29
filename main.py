@@ -12,7 +12,7 @@ from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame, our, mr_duc, zkp
+from utils.defense import fltrust, multi_krum, get_update, RLR, flame, zkp
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -102,7 +102,15 @@ if __name__ == '__main__':
         if args.iid:
             dict_users = mnist_iid(dataset_train, args.num_users)
         else:
-            dict_users = mnist_noniid(dataset_train, args.num_users, 10, 20)
+            if args.q_noniid == 0:
+                dict_users = np.load('./data/non_iid_mnist_q0.npy', allow_pickle=True).item()
+                print("load q0")
+            elif args.q_noniid == 5:
+                dict_users = np.load('./data/non_iid_mnist_q5.npy', allow_pickle=True).item()
+                print("load q5")
+            elif args.q_noniid == 15:
+                dict_users = np.load('./data/non_iid_mnist_q15.npy', allow_pickle=True).item()
+                print("load q15")
     elif args.dataset == 'fashion_mnist':
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=[0.2860], std=[0.3530])])
         dataset_train = datasets.FashionMNIST(
@@ -175,7 +183,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_zkp/mnist_noniidq=20/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_flame_out_rlr/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -263,13 +271,12 @@ if __name__ == '__main__':
             fltrust_norm = get_update(fltrust_norm, w_glob)
             w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
-            w_glob = flame(w_locals,w_updates,w_glob, args, args.epochs)
+            w_glob = flame(w_locals,w_updates,w_glob, args)
         elif args.defence == 'our':
             w_glob = our(w_locals,w_updates,w_glob, args, args.epochs)
         elif args.defence == 'mr_duc':
             w_glob = mr_duc(copy.deepcopy(net_glob), w_updates, args)
         elif args.defence == 'zkp':
-            
             w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label)
         else:
             print("Wrong Defense Method")
