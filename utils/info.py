@@ -34,6 +34,7 @@ def information(args):
     if math.isclose(args.malicious, 0) == False:
         info.append(f'    Long attack: {args.long}')
         info.append(f'    Wide attack: {args.wide}')
+        info.append(f'    Wide attack: {args.style_send}')
         info.append(f'    Threshold reject: {args.threshold_reject}')
         info.append(f'    Threshold down: {args.threshold_down}')
         info.append(f'    Attack method: {args.attack}')

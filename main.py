@@ -73,7 +73,7 @@ def test_mkdir(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
-def caculatorLabel( dataset, dict_user):
+def caculatorLabel(dataset, dict_user):
     client  = [0,0,0,0,0,0,0,0,0,0]
     for j in range(len(dict_user)):
         my_list = list(dict_user)
@@ -81,6 +81,9 @@ def caculatorLabel( dataset, dict_user):
         label = dataset[idx][1]
         client[label] += 1
     return client
+
+def attackCaculatorLabel():
+    return [240,20,10,5,3,2,1,1,1,1]
 
 if __name__ == '__main__':
     # parse args
@@ -146,12 +149,8 @@ if __name__ == '__main__':
         net_glob = CNN_MNIST().to(args.device)
     elif args.model == "cnn_cifar" and args.dataset == "cifar10":
         net_glob = CNN_CIFAR_RGB().to(args.device)
-    elif args.model == 'VGG' and args.dataset == 'cifar':
-        net_glob = vgg19_bn().to(args.device)
     elif args.model == "resnet" and args.dataset == 'cifar':
         net_glob = ResNet18().to(args.device)
-    elif args.model == "rlr_mnist" or args.model == "cnn":
-        net_glob = get_model('fmnist').to(args.device)
     elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
         net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == 'mobilenet' and args.dataset == 'cifar':
@@ -183,7 +182,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_flame_out_rlr/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_out_mistrust/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -211,10 +210,7 @@ if __name__ == '__main__':
             w_updates = []
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = np.random.choice(range(args.num_users), m, replace=False)
-        list_label = []
-        for i in range(len(idxs_users)):
-            label_i = caculatorLabel(dataset_train, dict_users[idxs_users[i]])
-            list_label.append(label_i)        
+        list_label = []            
         if val_acc_list[-1] > backdoor_begin_acc:
             attack_number = int(args.malicious * m)
         else:
@@ -241,12 +237,21 @@ if __name__ == '__main__':
                         net=copy.deepcopy(net_glob).to(args.device), test_img = test_img)
                 print("client", idx, "--attack--")
                 attack_number -= 1
+                
+                if args.style_send == "trust":
+                    label_idx = caculatorLabel(dataset_train, dict_users[idx])
+                    list_label.append(label_idx)
+                elif args.style_send == "mistrust":
+                    label_idx = attackCaculatorLabel()
+                    list_label.append(label_idx)
             else:
+                label_idx = caculatorLabel(dataset_train, dict_users[idx])
+                list_label.append(label_idx)
                 local = LocalUpdate(
                     args=args, dataset=dataset_train, idxs=dict_users[idx])
                 w, loss = local.train(
                     net=copy.deepcopy(net_glob).to(args.device))
-                
+            
             w_updates.append(get_update(w, w_glob))
             if args.all_clients:
                 w_locals[idx] = copy.deepcopy(w)
@@ -272,10 +277,6 @@ if __name__ == '__main__':
             w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
             w_glob = flame(w_locals,w_updates,w_glob, args)
-        elif args.defence == 'our':
-            w_glob = our(w_locals,w_updates,w_glob, args, args.epochs)
-        elif args.defence == 'mr_duc':
-            w_glob = mr_duc(copy.deepcopy(net_glob), w_updates, args)
         elif args.defence == 'zkp':
             w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label)
         else:
