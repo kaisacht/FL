@@ -7,7 +7,7 @@
     Fraction NonIID: 0
     Long attack: 4
     Wide attack: 4
-    Wide attack: mistrust
+    Style send: mistrust
     Threshold reject: 0.5
     Threshold down: 0.0
     Attack method: dba
