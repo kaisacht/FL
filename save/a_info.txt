@@ -1,10 +1,10 @@
 ======================================
     IID: 0
-    Dataset: mnist
-    Model: Mnist_CNN
+    Dataset: cifar
+    Model: resnet
     Model Init: None
     Aggregation Function: zkp
-    Fraction NonIID: 15
+    Fraction NonIID: 0
     Long attack: 5
     Wide attack: 5
     Wide attack: mistrust
