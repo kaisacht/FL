@@ -8,7 +8,7 @@ from sklearn.cluster import KMeans, SpectralClustering
 import matplotlib.pyplot as plt
 import os
 from sklearn.decomposition import PCA
-#from sklearn.cluster import HDBSCAN
+from sklearn.preprocessing import StandardScaler
 from models.FedAvg import FedAvg
 
 def cos(a, b):
@@ -296,7 +296,7 @@ def flame(local_model, update_params, global_model, args):
    
     for i in range(len(benign_client)):
         if benign_client[i] < num_malicious_clients:
-            args.wrong_mal+=1
+            args.wrong_mal += 1
         else:
             #  minus per benign in cluster
             args.right_ben += 1
@@ -322,11 +322,6 @@ def flame(local_model, update_params, global_model, args):
     return global_model
 
 def RLR(global_model, agent_updates_list, args):
-    """
-    agent_updates_dict: dict['key']=one_dimension_update
-    agent_updates_list: list[0] = model.dict
-    global_model: net
-    """
     # args.robustLR_threshold = 6
     args.server_lr = 1
 
@@ -350,6 +345,7 @@ def RLR(global_model, agent_updates_list, args):
 def classify(list_agent, threshold):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     gradient_list = []
+    best_agent = []
     list_select = []
     for  i in list_agent:
         gradient_list.append(parameters_dict_to_vector_rlr(i))
@@ -359,32 +355,57 @@ def classify(list_agent, threshold):
         cos_i = cos(gradient_list[i], sum_gradient)
         if cos_i >= threshold:
             list_select.append(gradient_list[i])
-    return list_select
-    
-    
+            best_agent.append(i)
+    return list_select, best_agent
+
+def compute_similarity_matrix(X):
+    pairwise_distances = np.linalg.norm(X[:, np.newaxis] - X, axis=2)
+    sigma = np.median(pairwise_distances)
+    similarity_matrix = np.exp(-pairwise_distances ** 2 / (2 * sigma ** 2))
+    return similarity_matrix
+
+def distance_euclidean(x, y):
+    return np.sqrt(np.sum((x - y) ** 2))
+   
     
 def zkp(global_model, agent_updates_list, args, listLabel):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
+    data = []
+    for i in range(len(listLabel)):
+        data_i = []
+        for j in range(len(listLabel)):
+            data_i.append(distance_euclidean(listLabel[i],listLabel[j]))
+        print(data_i)
+        data.append(data_i)
+    data = np.array(data)
+    similarity_matrix = compute_similarity_matrix(data) 
+    spectral_clustering = KMeans(n_clusters=3)
+    
+    labels = spectral_clustering.fit_predict(similarity_matrix)
+    benign = []
     group_1 = []
     group_2 = []
     group_3 = []
     list_classify = []
-    
-    for i in range(len(listLabel)):
-        index_max = get_max_index(listLabel[i])
-        if index_max == 0 or index_max == 1 or index_max == 2:
+    for i in labels:
+        if i == 0:
             group_1.append(agent_updates_list[i])
-        elif index_max == 3 or index_max == 4 or index_max == 5:
+        elif i == 1:
             group_2.append(agent_updates_list[i])
-        #6,7,8,9
         else:
             group_3.append(agent_updates_list[i])
     threshold = 0.5 
-    list_classify += classify(group_1, threshold)
-    list_classify += classify(group_2, threshold)
-    list_classify += classify(group_3, threshold)
-    
+    tmp1 ,tmp2 = classify(group_1, threshold)
+    list_classify += tmp1
+    benign += tmp2
+    tmp1 ,tmp2 = classify(group_2, threshold)
+    list_classify += tmp1
+    benign += tmp2
+    tmp1 ,tmp2 = classify(group_3, threshold)
+    list_classify += tmp1
+    benign += tmp2 
     aggregated_updates = 0
+    
     for update in list_classify:
         # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
@@ -395,16 +416,4 @@ def zkp(global_model, agent_updates_list, args, listLabel):
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
     return global_w
-
-
-
-#witen a fuction return the index in list has the max value
-def get_max_index(list):
-    max = 0
-    index = 0
-    for i in range(len(list)):
-        if list[i] > max:
-            max = list[i]
-            index = i
-    return index
 

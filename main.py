@@ -80,10 +80,17 @@ def caculatorLabel(dataset, dict_user):
         idx = my_list[j]
         label = dataset[idx][1]
         client[label] += 1
+    client = normalized_data(client)
     return client
 
 def attackCaculatorLabel():
-    return [240,20,10,5,3,2,1,1,1,1]
+    client = normalized_data([240,20,10,5,3,2,1,1,1,1])
+    return client
+
+def normalized_data(data):
+    data = np.array(data)
+    data = (data - min(data)) / (max(data) - min(data))
+    return data  
 
 if __name__ == '__main__':
     # parse args
@@ -182,7 +189,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_cifar/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_kmeans/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -204,6 +211,7 @@ if __name__ == '__main__':
         print("Aggregation over all clients")
         w_locals = [w_glob for i in range(args.num_users)]
     for iter in range(args.epochs):
+        random_array = np.random.uniform(-1, 1, 10)
         loss_locals = []
         if not args.all_clients:
             w_locals = []
@@ -240,13 +248,17 @@ if __name__ == '__main__':
                 
                 if args.style_send == "trust":
                     label_idx = caculatorLabel(dataset_train, dict_users[idx])
+                    label_idx = label_idx + random_array
                     list_label.append(label_idx)
                 elif args.style_send == "mistrust":
                     label_idx = attackCaculatorLabel()
+                    label_idx = label_idx + random_array
                     list_label.append(label_idx)
             else:
                 label_idx = caculatorLabel(dataset_train, dict_users[idx])
+                label_idx = label_idx + random_array
                 list_label.append(label_idx)
+                
                 local = LocalUpdate(
                     args=args, dataset=dataset_train, idxs=dict_users[idx])
                 w, loss = local.train(
@@ -307,3 +319,5 @@ if __name__ == '__main__':
     acc_test, loss_test = test_img(net_glob, dataset_test, args)
     print("Training accuracy: {:.2f}".format(acc_train))
     print("Testing accuracy: {:.2f}".format(acc_test))
+    
+   
