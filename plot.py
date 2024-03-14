@@ -2,7 +2,7 @@ import re
 import os
 import matplotlib.pyplot as plt
 # Lấy đường dẫn đến thư mục
-path = "./save_out_mistrust"
+path = "./save_cifar"
 
 # Lấy danh sách các tệp và thư mục trong thư mục
 files = os.listdir(path)
@@ -11,7 +11,7 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,20))
 
-dataset_draw = 'mnist'
+dataset_draw = "cifar"
 
 def check( parama):
     if parama == '0.1' or parama == '0.2':
@@ -76,30 +76,31 @@ for file in files:
             long, wide = '5', '5'
             if iid == '0':
                 # if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low) and Fraction_attack =='16.0%':
-                if dataset == dataset_draw and attack_method == 'badnet' and long_attack == long and wide_attack == wide and fract_noniid == frac_data:
-                    # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
-                    plt.subplot(421)
-                    plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('main accuracy')
-                    plt.legend()
-                    plt.subplot(422)
-                    plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('backdoor accuracy')
-                    plt.legend()
-                elif dataset == dataset_draw and attack_method == 'dba' and long_attack == long and wide_attack == wide and fract_noniid == frac_data:
-                    # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
-                    plt.subplot(423)
-                    plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('main accuracy')
-                    plt.legend()
-                    plt.subplot(424)
-                    plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('backdoor accuracy')
-                    plt.legend()
+                if dataset == dataset_draw and attack_method == 'badnet' and long_attack == long and wide_attack == wide:
+                    if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
+                        print('ok')
+                        plt.subplot(421)
+                        plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
+                        plt.xlabel(defense +' '+dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(422)
+                        plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
+                        plt.xlabel(defense +' '+dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+                elif dataset == dataset_draw and attack_method == 'dba' and long_attack == long and wide_attack == wide:
+                    if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
+                        plt.subplot(423)
+                        plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
+                        plt.xlabel(defense +' '+dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(424)
+                        plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
+                        plt.xlabel(defense +' '+dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
                 # elif dataset == dataset_draw and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5' and fract_noniid == frac_data:
                 #     # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
                 #     plt.subplot(625)
