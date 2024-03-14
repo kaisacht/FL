@@ -368,7 +368,7 @@ def distance_euclidean(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
    
     
-def zkp(global_model, agent_updates_list, args, listLabel):
+def zkp(global_model, agent_updates_list, args, listLabel, k):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     data = []
     for i in range(len(listLabel)):
@@ -379,33 +379,22 @@ def zkp(global_model, agent_updates_list, args, listLabel):
         data.append(data_i)
     data = np.array(data)
     similarity_matrix = compute_similarity_matrix(data) 
-    spectral_clustering = KMeans(n_clusters=3)
+    spectral_clustering = KMeans(n_clusters = k)
     
     labels = spectral_clustering.fit_predict(similarity_matrix)
     benign = []
-    group_1 = []
-    group_2 = []
-    group_3 = []
     list_classify = []
-    for i in labels:
-        if i == 0:
-            group_1.append(agent_updates_list[i])
-        elif i == 1:
-            group_2.append(agent_updates_list[i])
-        else:
-            group_3.append(agent_updates_list[i])
-    threshold = 0.5 
-    tmp1 ,tmp2 = classify(group_1, threshold)
-    list_classify += tmp1
-    benign += tmp2
-    tmp1 ,tmp2 = classify(group_2, threshold)
-    list_classify += tmp1
-    benign += tmp2
-    tmp1 ,tmp2 = classify(group_3, threshold)
-    list_classify += tmp1
-    benign += tmp2 
+    for i in range (k):
+        group_i = []
+        for j in range(len(labels)):
+            if labels[j] == i:
+                group_i.append(agent_updates_list[j])
+        threshold = 0.5
+        list_select, best_agent = classify(group_i, threshold)
+        benign += best_agent
+        list_classify += list_select
+        
     aggregated_updates = 0
-    
     for update in list_classify:
         # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
