@@ -2,14 +2,8 @@
 import numpy as np
 import torch
 import copy
-import time
 import hdbscan
-from sklearn.cluster import KMeans, SpectralClustering
-import matplotlib.pyplot as plt
-import os
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from models.FedAvg import FedAvg
+from sklearn.cluster import KMeans
 
 def cos(a, b):
     # res = np.sum(a*b.T)/((np.sqrt(np.sum(a * a.T)) + 1e-9) * (np.sqrt(np.sum(b * b.T))) + 1e-
@@ -19,45 +13,6 @@ def cos(a, b):
     if res < 0:
         res = 0
     return res
-
-
-def fltrust(params, central_param, global_parameters, args):
-    FLTrustTotalScore = 0
-    score_list = []
-    central_param_v = parameters_dict_to_vector_flt(central_param)
-    central_norm = torch.norm(central_param_v)
-    cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
-    sum_parameters = None
-    for local_parameters in params:
-        local_parameters_v = parameters_dict_to_vector_flt(local_parameters)
-        client_cos = cos(central_param_v, local_parameters_v)
-        client_cos = max(client_cos.item(), 0)
-        client_clipped_value = central_norm/torch.norm(local_parameters_v)
-        score_list.append(client_cos)
-        FLTrustTotalScore += client_cos
-        if sum_parameters is None:
-            sum_parameters = {}
-            for key, var in local_parameters.items():
-                sum_parameters[key] = client_cos * \
-                    client_clipped_value * var.clone()
-        else:
-            for var in sum_parameters:
-                sum_parameters[var] = sum_parameters[var] + client_cos * client_clipped_value * local_parameters[
-                    var]
-    if FLTrustTotalScore == 0:
-        print(score_list)
-        return global_parameters
-    for var in global_parameters:
-        temp = (sum_parameters[var] / FLTrustTotalScore)
-        if global_parameters[var].type() != temp.type():
-            temp = temp.type(global_parameters[var].type())
-        if var.split('.')[-1] == 'num_batches_tracked':
-            global_parameters[var] = params[0][var]
-        else:
-            global_parameters[var] += temp * args.server_lr
-    print(score_list)
-    return global_parameters
-
 
 def parameters_dict_to_vector_flt(net_dict) -> torch.Tensor:
     vec = []
@@ -120,7 +75,6 @@ def multi_krum(gradients, n_attackers, args, multi_k=False):
         distances = torch.sort(distances, dim=1)[0]
         scores = torch.sum(
             distances[:, :len(remaining_updates) - 2 - n_attackers], dim=1)
-        print(scores)
         args.krum_distance.append(scores)
         indices = torch.argsort(scores)[:len(
             remaining_updates) - 2 - n_attackers]
@@ -134,20 +88,13 @@ def multi_krum(gradients, n_attackers, args, multi_k=False):
         if not multi_k:
             break
 
-    # aggregate = torch.mean(candidates, dim=0)
-
-    # return aggregate, np.array(candidate_indices)
     num_clients = max(int(args.frac * args.num_users), 1)
     num_malicious_clients = int(args.malicious * num_clients)
-    num_benign_clients = num_clients - num_malicious_clients
     args.turn+=1
     if multi_k == False:
         if candidate_indices[0] < num_malicious_clients:
             args.wrong_mal += 1
             
-    print(candidate_indices)
-    
-    print('Proportion of malicious are selected:'+str(args.wrong_mal/args.turn))
 
     for i in range(len(scores)):
         if i < num_malicious_clients:
@@ -260,13 +207,11 @@ def flame(local_model, update_params, global_model, args):
     cos_list=[]
     local_model_vector = []
     for param in local_model:
-        # local_model_vector.append(parameters_dict_to_vector_flt_cpu(param))
         local_model_vector.append(parameters_dict_to_vector_flt(param))
     for i in range(len(local_model_vector)):
         cos_i = []
         for j in range(len(local_model_vector)):
             cos_ij = 1- cos(local_model_vector[i],local_model_vector[j])
-            # cos_i.append(round(cos_ij.item(),4))
             cos_i.append(cos_ij.item())
         cos_list.append(cos_i)
     num_clients = max(int(args.frac * args.num_users), 1)
@@ -291,18 +236,14 @@ def flame(local_model, update_params, global_model, args):
             if clusterer.labels_[i] == max_cluster_index:
                 benign_client.append(i)
     for i in range(len(local_model_vector)):
-        # norm_list = np.append(norm_list,torch.norm(update_params_vector[i],p=2))  # consider BN
         norm_list = np.append(norm_list,torch.norm(parameters_dict_to_vector(update_params[i]),p=2).item())  # no consider BN
    
     for i in range(len(benign_client)):
         if benign_client[i] < num_malicious_clients:
             args.wrong_mal += 1
         else:
-            #  minus per benign in cluster
             args.right_ben += 1
     args.turn+=1
-    # print('proportion of malicious are selected:',args.wrong_mal/(num_malicious_clients*args.turn))
-    # print('proportion of benign are selected:',args.right_ben/(num_benign_clients*args.turn))
     clip_value = np.median(norm_list)
     for i in range(len(benign_client)):
         gama = clip_value/norm_list[i]
@@ -335,7 +276,6 @@ def RLR(global_model, agent_updates_list, args):
         aggregated_updates += update
     aggregated_updates /= len(agent_updates_list)
     lr_vector = compute_robustLR(agent_updates_list, args)
-    print('lr', lr_vector)
     cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
@@ -396,7 +336,6 @@ def zkp(global_model, agent_updates_list, args, listLabel, k):
         
     aggregated_updates = 0
     for update in list_classify:
-        # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
     if len(list_classify) != 0:
         aggregated_updates /= len(list_classify)
