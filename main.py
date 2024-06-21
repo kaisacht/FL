@@ -1,18 +1,13 @@
-#/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Python version: 3.6
-
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
-from models.Net import CNN_MNIST, CNN_CIFAR_RGB
-from models.Net import CNN_MNIST ,CNN_CIFAR_RGB, RESNET_CIFAR, ResNet18, vgg11, MobileNetV2
+from models.Net import CNN_MNIST, ResNet18
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
-from utils.sample import mnist_iid, mnist_noniid, cifar10_iid, cifar10_noniid, fashion_mnist_noniid, fashion_mnist_iid
-from utils.defense import fltrust, multi_krum, get_update, RLR, flame, zkp
+from utils.sample import mnist_iid
+from utils.defense import  multi_krum, get_update, RLR, flame, zkp
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -21,7 +16,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 import random
-import time
 import math
 matplotlib.use('Agg')
 
@@ -152,22 +146,13 @@ if __name__ == '__main__':
     img_size = dataset_train[0][0].shape
 
     # build model
-    if args.model == "cnn_mnist" or args.dataset == "mnist" or args.dataset == 'fashion_mnist':
+    if args.model == "cnn_mnist" or args.dataset == "mnist":
         net_glob = CNN_MNIST().to(args.device)
-    elif args.model == "cnn_cifar" and args.dataset == "cifar10":
-        net_glob = CNN_CIFAR_RGB().to(args.device)
     elif args.model == "resnet" and args.dataset == 'cifar':
         net_glob = ResNet18().to(args.device)
-    elif args.model == 'cnn_cifar' and args.dataset == 'cifar':
-        net_glob = CNN_CIFAR_RGB().to(args.device)
-    elif args.model == 'mobilenet' and args.dataset == 'cifar':
-        net_glob = MobileNetV2().to(args.device)
-    # elif args.model == 'VGG' and args.dataset == 'cifar':
-    #     net_glob = vgg19_bn().to(args.device)
-    # elif args.model == "resnet" and args.dataset == 'cifar':
-    #     net_glob = ResNet18().to(args.device)
-    # elif args.model == "rlr_mnist" or args.model == "cnn":
-    #     net_glob = get_model('fmnist').to(args.device)
+    elif args.model == "resnet" and args.dataset == 'fashion_mnist':
+        net_glob = ResNet18().to(args.device)
+
     else:
         exit('Error: unrecognized model')
     
@@ -189,7 +174,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_kmeans/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_mnist_avg_daba/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -280,17 +265,10 @@ if __name__ == '__main__':
             # w_glob = FedAvg([w_locals[i] for i in selected_clinet])
         elif args.defence == 'RLR':
             w_glob = RLR(copy.deepcopy(net_glob), w_updates, args)
-        elif args.defence == 'fltrust':
-            local = LocalUpdate(
-                args=args, dataset=dataset_test, idxs=central_dataset)
-            fltrust_norm, loss = local.train(
-                net=copy.deepcopy(net_glob).to(args.device))
-            fltrust_norm = get_update(fltrust_norm, w_glob)
-            w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         elif args.defence == 'flame':
             w_glob = flame(w_locals,w_updates,w_glob, args)
         elif args.defence == 'zkp':
-            w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label)
+            w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label, 3)
         else:
             print("Wrong Defense Method")
             os._exit(0)
