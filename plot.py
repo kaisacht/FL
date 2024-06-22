@@ -2,16 +2,16 @@ import re
 import os
 import matplotlib.pyplot as plt
 # Lấy đường dẫn đến thư mục
-path = "./save_out_mistrust"
+path = "./save_result/mnist_dba_noniid"
 
 # Lấy danh sách các tệp và thư mục trong thư mục
 files = os.listdir(path)
 
 # Lấy hết tên file trong thư mục
 
-plt.figure(figsize=(20,20))
+plt.figure(figsize=(20,45))
 
-dataset_draw = "cifar"
+dataset_draw = "mnist"
 
 def check( parama):
     if parama == '0.1' or parama == '0.2':
@@ -23,7 +23,6 @@ for file in files:
         ext = os.path.splitext(file)[1]
         first = os.path.splitext(file)[0]
         if ext == ".txt" and len(first) > 2:
-            print(first)
             path_file = os.path.join(path, file)
             with open(path_file, "r") as f:
                 content = f.read()
@@ -66,39 +65,67 @@ for file in files:
                     if line.startswith("    Style send:"):
                         style_send = line.strip().split(": ")[1] +''
                     if line.startswith("main_task_accuracy="):
-                        main_task_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
+                        main_task_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(",")]
                     if line.startswith('loss_list='):
                         test_loss = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
                     if line.startswith("backdoor_accuracy="):
-                        backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
+                        backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(",")]
             size_line = 1.
-            long, wide = '4', '4'
+            set_attack_method = 'badnet'
             if iid == '0':
                 # if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low) and Fraction_attack =='16.0%':
-                if dataset == dataset_draw and attack_method == 'badnet' and long_attack == long and wide_attack == wide and fract_noniid == frac_data:
+                if dataset == dataset_draw and attack_method == set_attack_method :
+                    print(long_attack, wide_attack)
                     # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
-                    plt.subplot(421)
-                    plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('main accuracy')
-                    plt.legend()
-                    plt.subplot(422)
-                    plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('backdoor accuracy')
-                    plt.legend()
-                elif dataset == dataset_draw and attack_method == 'dba' and long_attack == long and wide_attack == wide and fract_noniid == frac_data:
-                    # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
-                    plt.subplot(423)
-                    plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('main accuracy')
-                    plt.legend()
-                    plt.subplot(424)
-                    plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
-                    plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
-                    plt.ylabel('backdoor accuracy')
-                    plt.legend()
+                    if long_attack == '3' and wide_attack == '3' and fract_noniid == '0':
+                        print(defense)
+                        size_line = 1.5
+                        plt.subplot(621)
+                        plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset I")
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(622)
+                        plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset I")
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+                    elif long_attack == '3' and wide_attack == '3' and fract_noniid == '5':
+                        size_line = 1.5
+                        plt.subplot(623)
+                        plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset II")
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(624)
+                        plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset II")
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+                    elif long_attack == '3' and wide_attack == '3' and fract_noniid == '15':
+                        size_line = 1.5
+                        plt.subplot(625)
+                        plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset III")
+                        plt.ylabel('main accuracy')
+                        plt.legend()
+                        plt.subplot(626)
+                        plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
+                        plt.xlabel("Dataset III")
+                        plt.ylabel('backdoor accuracy')
+                        plt.legend()
+                # elif dataset == dataset_draw and attack_method == 'dba' and long_attack == long and wide_attack == wide:
+                #     # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
+                #     plt.subplot(423)
+                #     plt.plot(main_task_accuracy, label = style_send, linewidth = size_line)
+                #     plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                #     plt.ylabel('main accuracy')
+                #     plt.legend()
+                #     plt.subplot(424)
+                #     plt.plot(backdoor_accuracy, label = style_send, linewidth = size_line)
+                #     plt.xlabel(dataset +' '+ attack_method +' '+ long_attack +'x' + wide_attack)
+                #     plt.ylabel('backdoor accuracy')
+                #     plt.legend()
                 # elif dataset == dataset_draw and attack_method == 'badnet' and long_attack == '5' and wide_attack == '5' and fract_noniid == frac_data:
                 #     # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
                 #     plt.subplot(625)
@@ -148,4 +175,4 @@ for file in files:
                 #     plt.ylabel('backdoor accuracy')
                 #     plt.legend()
         
-plt.savefig('../FL/test''.pdf', format = 'pdf',bbox_inches='tight')
+plt.savefig('../FL/test432''.pdf', format = 'pdf',bbox_inches='tight')
