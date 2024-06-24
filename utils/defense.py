@@ -315,7 +315,6 @@ def zkp(global_model, agent_updates_list, args, listLabel, k):
         data_i = []
         for j in range(len(listLabel)):
             data_i.append(distance_euclidean(listLabel[i],listLabel[j]))
-        print(data_i)
         data.append(data_i)
     data = np.array(data)
     similarity_matrix = compute_similarity_matrix(data) 
