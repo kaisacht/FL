@@ -2,7 +2,7 @@ import re
 import os
 import matplotlib.pyplot as plt
 # Lấy đường dẫn đến thư mục
-path = "./save_result/mnist_dba_noniid"
+path = "./save_result/cifar10_krum_flame_daba"
 
 # Lấy danh sách các tệp và thư mục trong thư mục
 files = os.listdir(path)
@@ -11,7 +11,7 @@ files = os.listdir(path)
 
 plt.figure(figsize=(20,45))
 
-dataset_draw = "mnist"
+dataset_draw = "cifar"
 
 def check( parama):
     if parama == '0.1' or parama == '0.2':
@@ -70,48 +70,44 @@ for file in files:
                         test_loss = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(", ")]
                     if line.startswith("backdoor_accuracy="):
                         backdoor_accuracy = [float(value) for value in line.strip().split("[")[1].split("]")[0].split(",")]
-            size_line = 1.
+            size_line = 0.5
             set_attack_method = 'badnet'
             if iid == '0':
                 # if defense == 'mr_duc' and threshold_reject != '' and check(threshold_low) and Fraction_attack =='16.0%':
                 if dataset == dataset_draw and attack_method == set_attack_method :
                     print(long_attack, wide_attack)
                     # if defense == 'RLR' or defense == 'zkp' or defense == 'flame':
-                    if long_attack == '3' and wide_attack == '3' and fract_noniid == '0':
-                        print(defense)
-                        size_line = 1.5
+                    if long_attack == '3' and wide_attack == '3':
                         plt.subplot(621)
                         plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset I")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
                         plt.subplot(622)
                         plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset I")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                    elif long_attack == '3' and wide_attack == '3' and fract_noniid == '5':
-                        size_line = 1.5
+                    elif long_attack == '4' and wide_attack == '4':
                         plt.subplot(623)
                         plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset II")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
                         plt.subplot(624)
                         plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset II")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
-                    elif long_attack == '3' and wide_attack == '3' and fract_noniid == '15':
-                        size_line = 1.5
+                    elif long_attack == '5' and wide_attack == '5':
                         plt.subplot(625)
                         plt.plot(main_task_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset III")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('main accuracy')
                         plt.legend()
                         plt.subplot(626)
                         plt.plot(backdoor_accuracy, label = defense, linewidth = size_line)
-                        plt.xlabel("Dataset III")
+                        plt.xlabel("Size trigger attack:" + long_attack + 'x' + wide_attack)
                         plt.ylabel('backdoor accuracy')
                         plt.legend()
                 # elif dataset == dataset_draw and attack_method == 'dba' and long_attack == long and wide_attack == wide:

@@ -3,7 +3,8 @@
     Dataset: mnist
     Model: Mnist_CNN
     Model Init: None
-    Aggregation Function: flame
+    Aggregation Function: krum
+    
     Fraction NonIID: 5
     Long attack: 4
     Wide attack: 4
