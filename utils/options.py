@@ -14,15 +14,15 @@ def args_parser():
     parser.add_argument('--init', type=str, default='None',
                         help="location of init model")
     # federated arguments
-    parser.add_argument('--epochs', type=int, default=500,
+    parser.add_argument('--epochs', type=int, default=100,
                         help="rounds of training")
     parser.add_argument('--threshold_reject', type=float, default=0.5, help='threshold reject')
     parser.add_argument('--threshold_down', type=float, default=0.0, help='threshold down')
     parser.add_argument('--num_users', type=int,
                         default=100, help="number of users: K")
-    parser.add_argument('--frac', type=float, default=0.1,
+    parser.add_argument('--frac', type=float, default=0.3,
                         help="the fraction of clients: C")
-    parser.add_argument('--malicious',type=float,default=0, help="proportion of mailicious clients")
+    parser.add_argument('--malicious',type=float,default=0.12, help="proportion of mailicious clients")
     
     #***** badnet labelflip layerattack updateflip get_weight layerattack_rev layerattack_ER****
     parser.add_argument('--attack', type=str,
@@ -65,7 +65,7 @@ def args_parser():
                         help='whether i.i.d or not')
 
  #************************atttack_label********************************#
-    parser.add_argument('--attack_label', type=int, default=5,
+    parser.add_argument('--attack_label', type=int, default=2,
                         help="trigger for which label")
     # attack_goal=-1 is all to one
     parser.add_argument('--attack_goal', type=int, default=7,
@@ -76,6 +76,7 @@ def args_parser():
     
     parser.add_argument('--gpu', type=int, default=0,
                         help="GPU ID, -1 for CPU")
+    
     parser.add_argument('--robustLR_threshold', type=int, default=4, 
                         help="break ties when votes sum to 0")
     
@@ -113,6 +114,7 @@ def args_parser():
     parser.add_argument('--noise', type=float, default=0.001)
     parser.add_argument('--all_clients', action='store_true',
                         help='aggregation over all clients') 
-
+    parser.add_argument('--type_poi', type=str, default='')
+    parser.add_argument('--s_norm', type=int, default=2.2)
     args = parser.parse_args()
     return args

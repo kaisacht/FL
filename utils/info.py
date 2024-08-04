@@ -43,6 +43,7 @@ def information(args):
         info.append(f'    Backdoor From {args.attack_goal} to {args.attack_label}')
         info.append(f'    Attack Begin: {args.attack_begin}')
         info.append(f'    Trigger Shape: {args.trigger}')
+        info.append(f'    Type poisoning: {args.type_poi}')
         if args.trigger == 'square' or args.trigger == 'pattern':
             info.append(f'    Trigger Position X: {args.triggerX}')
             info.append(f'    Trigger Position Y: {args.triggerY}')

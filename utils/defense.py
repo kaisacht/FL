@@ -308,7 +308,7 @@ def distance_euclidean(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
    
     
-def zkp(global_model, agent_updates_list, args, listLabel, k):
+def DABA(global_model, agent_updates_list, args, listLabel, k):
     cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6).cuda()
     data = []
     for i in range(len(listLabel)):
@@ -368,7 +368,6 @@ def fltrust(params, central_param, global_parameters, args):
                 sum_parameters[var] = sum_parameters[var] + client_cos * client_clipped_value * local_parameters[
                     var]
     if FLTrustTotalScore == 0:
-        print(score_list)
         return global_parameters
     for var in global_parameters:
         temp = (sum_parameters[var] / FLTrustTotalScore)
@@ -378,5 +377,4 @@ def fltrust(params, central_param, global_parameters, args):
             global_parameters[var] = params[0][var]
         else:
             global_parameters[var] += temp * args.server_lr
-    print(score_list)
     return global_parameters

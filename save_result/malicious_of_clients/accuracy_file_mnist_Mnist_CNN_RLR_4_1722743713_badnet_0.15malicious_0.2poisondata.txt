@@ -1,0 +1,32 @@
+======================================
+    IID: 0
+    Dataset: mnist
+    Model: Mnist_CNN
+    Model Init: None
+    Aggregation Function: RLR
+    Fraction NonIID: 0
+    Long attack: 3
+    Wide attack: 3
+    Wide attack: trust
+    Threshold reject: 0.5
+    Threshold down: 0.0
+    Attack method: badnet
+    Fraction of malicious agents: 15.0%
+    Poison Frac: 0.2
+    Backdoor From 7 to 5
+    Attack Begin: 0
+    Trigger Shape: square
+    Trigger Position X: 0
+    Trigger Position Y: 0
+    Number of agents: 100
+    Fraction of agents each turn: 30(30.0%)
+    Local batch size: 50
+    Local epoch: 3
+    Client_LR: 0.01
+    Client_Momentum: 0.9
+    Global Rounds: 80
+    RobustLR_threshold: 4
+======================================
+main_task_accuracy=[0, 40.63999938964844, 46.34000015258789, 34.470001220703125, 57.13999938964844, 82.58000183105469]
+backdoor_accuracy=[0, 0.0, 6.128404669260701, 0.0, 0.0, 0.19455252918287938]
+loss_list=[0.4591397649086055, 0.6347879381662044, 0.5420932067208247, 0.5172352762578952, 0.4890526065367039]

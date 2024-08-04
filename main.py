@@ -7,7 +7,7 @@ from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
 from utils.options import args_parser
 from utils.sample import mnist_iid
-from utils.defense import  multi_krum, get_update, RLR, flame, zkp
+from utils.defense import  multi_krum, get_update, RLR, flame, DABA, fltrust
 import torch
 from torchvision import datasets, transforms
 import numpy as np
@@ -86,14 +86,33 @@ def normalized_data(data):
     data = (data - min(data)) / (max(data) - min(data))
     return data  
 
+def constrain_and_scale(w, w_glob, args):
+    squared_sum = 0
+    for key in w.keys():
+        squared_sum += torch.sum(torch.pow(w[key] - w_glob[key], 2))
+    model_norm = math.sqrt(squared_sum)
+    if model_norm > args.s_norm:
+        norm_scale = args.s_norm / model_norm
+        for key in w.keys():
+            w[key] = w_glob[key] + norm_scale * (w[key] - w_glob[key])
+    return w
+
+def pgd(w, w_glob, args):
+    squared_sum = 0
+    for key in w.keys():
+        squared_sum += torch.sum(torch.pow(w[key] - w_glob[key], 2))
+    model_norm = math.sqrt(squared_sum)
+    if model_norm > args.s_norm:
+        for key in w.keys():
+            w[key] = w_glob[key] + args.malicious * (w[key] - w_glob[key])
+    return w
+
 if __name__ == '__main__':
     # parse args
     args = args_parser()
     args.device = torch.device('cuda:{}'.format(
         args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
     test_mkdir('./'+args.save)
-    print_exp_details(args)
-    
     # load dataset and split users
     if args.dataset == 'mnist':
         trans_mnist = transforms.Compose(
@@ -174,7 +193,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_result/malicious_of_clients/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_result/type_poisoning/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -228,9 +247,12 @@ if __name__ == '__main__':
                 else:
                     w, loss = local.train(
                         net=copy.deepcopy(net_glob).to(args.device), test_img = test_img)
+                    if args.type_poi == 'cs': # constrain and scale
+                        w = constrain_and_scale(w, w_glob, args)
+                    elif args.type_poi == 'pgd':
+                        w = pgd(w, w_glob, args)
                 print("client", idx, "--attack--")
                 attack_number -= 1
-                
                 if args.style_send == "trust":
                     label_idx = caculatorLabel(dataset_train, dict_users[idx])
                     label_idx = label_idx + random_array
@@ -267,8 +289,10 @@ if __name__ == '__main__':
             w_glob = RLR(copy.deepcopy(net_glob), w_updates, args)
         elif args.defence == 'flame':
             w_glob = flame(w_locals,w_updates,w_glob, args)
-        elif args.defence == 'zkp':
-            w_glob = zkp(copy.deepcopy(net_glob), w_updates, args, list_label, 3)
+        elif args.defence == 'DABA':
+            w_glob = DABA(copy.deepcopy(net_glob), w_updates, args, list_label, 3)
+        elif args.defence == 'fltrust':
+            w_glob = fltrust(w_locals, w_updates, w_glob, args)
         else:
             print("Wrong Defense Method")
             os._exit(0)
