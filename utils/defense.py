@@ -263,23 +263,19 @@ def flame(local_model, update_params, global_model, args):
     return global_model
 
 def RLR(global_model, agent_updates_list, args):
-    # args.robustLR_threshold = 6
     args.server_lr = 1
-
     grad_list = []
     for i in agent_updates_list:
         grad_list.append(parameters_dict_to_vector_rlr(i))
     agent_updates_list = grad_list
     aggregated_updates = 0
     for update in agent_updates_list:
-        # print(update.shape)  # torch.Size([1199882])
         aggregated_updates += update
     aggregated_updates /= len(agent_updates_list)
     lr_vector = compute_robustLR(agent_updates_list, args)
     cur_global_params = parameters_dict_to_vector_rlr(global_model.state_dict())
     new_global_params =  (cur_global_params + lr_vector*aggregated_updates).float() 
     global_w = vector_to_parameters_dict(new_global_params, global_model.state_dict())
-    # print(cur_global_params == vector_to_parameters_dict(new_global_params, global_model.state_dict()))
     return global_w
 
 def classify(list_agent, threshold):

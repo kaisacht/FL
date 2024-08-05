@@ -1,0 +1,32 @@
+======================================
+    IID: 0
+    Dataset: fashion_mnist
+    Model: Mnist_CNN
+    Model Init: None
+    Aggregation Function: DABA
+    Fraction NonIID: 0
+    Long attack: 3
+    Wide attack: 3
+    Wide attack: trust
+    Threshold reject: 0.5
+    Threshold down: 0.0
+    Attack method: dba
+    Fraction of malicious agents: 20.0%
+    Poison Frac: 0.2
+    Backdoor From 7 to 2
+    Attack Begin: 0
+    Trigger Shape: square
+    Type poisoning: 
+    Trigger Position X: 0
+    Trigger Position Y: 0
+    Number of agents: 100
+    Fraction of agents each turn: 30(30.0%)
+    Local batch size: 50
+    Local epoch: 3
+    Client_LR: 0.01
+    Client_Momentum: 0.9
+    Global Rounds: 100
+======================================
+main_task_accuracy=[0, 64.76000213623047, 72.37000274658203]
+backdoor_accuracy=[0, 0.0, 0.0]
+loss_list=[1.3693879588334652, 0.8686534153918426]

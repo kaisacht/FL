@@ -169,8 +169,8 @@ if __name__ == '__main__':
         net_glob = CNN_MNIST().to(args.device)
     elif args.model == "resnet" and args.dataset == 'cifar':
         net_glob = ResNet18().to(args.device)
-    elif args.model == "resnet" and args.dataset == 'fashion_mnist':
-        net_glob = ResNet18().to(args.device)
+    elif args.dataset == 'fashion_mnist':
+        net_glob = CNN_MNIST().to(args.device)
 
     else:
         exit('Error: unrecognized model')
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_result/type_poisoning/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_result/all/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
@@ -292,7 +292,10 @@ if __name__ == '__main__':
         elif args.defence == 'DABA':
             w_glob = DABA(copy.deepcopy(net_glob), w_updates, args, list_label, 3)
         elif args.defence == 'fltrust':
-            w_glob = fltrust(w_locals, w_updates, w_glob, args)
+            local = LocalUpdate(args=args, dataset=dataset_test, idxs=central_dataset)
+            fltrust_norm, loss = local.train(net=copy.deepcopy(net_glob).to(args.device))
+            fltrust_norm = get_update(fltrust_norm, w_glob)
+            w_glob = fltrust(w_updates, fltrust_norm, w_glob, args)
         else:
             print("Wrong Defense Method")
             os._exit(0)
