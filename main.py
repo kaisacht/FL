@@ -193,7 +193,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_result/all/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_result/25num/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
