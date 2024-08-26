@@ -1,7 +1,7 @@
 from random import random
 from models.Test import test_img
 from models.FedAvg import FedAvg
-from models.Net import CNN_MNIST, ResNet18
+from models.Net import CNN_MNIST, ResNet18, ResNet50, ResNet101, MobileNetV2, VGG
 from models.MaliciousUpdate import LocalMaliciousUpdate
 from models.Update import LocalUpdate
 from utils.info import print_exp_details, write_info_to_accfile, get_base_info
@@ -167,8 +167,14 @@ if __name__ == '__main__':
     # build model
     if args.model == "cnn_mnist" or args.dataset == "mnist":
         net_glob = CNN_MNIST().to(args.device)
-    elif args.model == "resnet" and args.dataset == 'cifar':
+    elif args.model == "resnet18" and args.dataset == 'cifar':
         net_glob = ResNet18().to(args.device)
+    elif args.model == "resnet50" and args.dataset == 'cifar':
+        net_glob = ResNet50().to(args.device)
+    elif args.model == "resnet101" and args.dataset == 'cifar':
+        net_glob = ResNet101().to(args.device)
+    elif args.model == "mobilenetv2" and args.dataset == 'cifar':
+        net_glob = MobileNetV2().to(args.device)
     elif args.dataset == 'fashion_mnist':
         net_glob = CNN_MNIST().to(args.device)
 
@@ -193,7 +199,7 @@ if __name__ == '__main__':
         backdoor_begin_acc = args.attack_begin  # overtake backdoor_begin_acc then attack
     central_dataset = central_dataset_iid(dataset_test, args.server_dataset)
     base_info = get_base_info(args)
-    filename = './save_result/25num/accuracy_file_{}.txt'.format(base_info)
+    filename = './save_result/cifar10/accuracy_file_{}.txt'.format(base_info)
     
     if args.init != 'None':
         param = torch.load(args.init)
