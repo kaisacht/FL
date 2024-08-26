@@ -34,7 +34,7 @@ def args_parser():
     # *****local_ep = 3, local_bs=50, lr=0.1*******
     parser.add_argument('--local_ep', type=int, default=3,
                         help="the number of local epochs: E")
-    parser.add_argument('--local_bs', type=int, default=50,
+    parser.add_argument('--local_bs', type=int, default=16,
                         help="local batch size: B")
 
     parser.add_argument('--bs', type=int, default=64, help="test batch size")
