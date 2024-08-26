@@ -1,12 +1,28 @@
-dba: 98.67 88.37
-badnet: 98.61 98.23
-cs: 98.58 97.83
-pgd: 98.68 99.48
-dba: 98.63 65.3
-badnet: 98.68 94.31
-cs: 98.72 99.16
-pgd: 98.53 91.27
-dba: 98.58 99.18
-badnet: 98.73 98.98
-cs: 98.75 93.45
-pgd: 98.7 99.01
+
+fltrust cifar dba 71.97 5.8
+fltrust cifar badnet 72.27 7.3
+fltrust cifar badnet 72.41 3.3
+fltrust cifar badnet 72.13 3.2
+
+
+
+avg mnist dba 98.66 100.0
+avg mnist badnet 98.67 100.0
+avg mnist badnet 98.49 100.0
+avg mnist badnet 98.73 100.0
+DABA mnist dba 98.01 11.746736348090716
+DABA mnist badnet 98.05 12.689496135272245
+DABA mnist badnet 98.26 3.0742537866365693
+DABA mnist badnet 98.05 14.978168260474757
+flame mnist dba 87.53 100.0
+flame mnist badnet 87.72 100.0
+flame mnist badnet 78.8 100.0
+flame mnist badnet 87.32 100.0
+fltrust mnist dba 97.7 100.0
+fltrust mnist badnet 97.77 98.05
+fltrust mnist badnet 97.58 97.57
+fltrust mnist badnet 97.92 99.9
+RLR mnist dba 97.64 7.0886412301795225
+RLR mnist badnet 97.68 4.238058668466929
+RLR mnist badnet 97.82 14.609509743344493
+RLR mnist badnet 97.68 12.396329684447508
